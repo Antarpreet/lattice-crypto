@@ -82,6 +82,5 @@ class Alea {
 }
 
 // Pseudo Random Number Generator (PRNG)
-let random = new Alea([]);
-const seed = random.args;
-export default random = new Alea(seed);
+const seed = [+new Date];
+export default new Alea(seed);
