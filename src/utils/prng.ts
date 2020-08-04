@@ -34,13 +34,13 @@ class Alea {
     args: any[];
 
     constructor(args: any[]) {
-        this.args = args;
         this.s0 = this.s1 = this.s2 = 0;
         this.c = 1;
 
         if (args.length === 0) {
             args = [+new Date];
         }
+        this.args = args;
         
         const mash = new Mash();
 
@@ -84,4 +84,4 @@ class Alea {
 // Pseudo Random Number Generator (PRNG)
 let random = new Alea([]);
 const seed = random.args;
-random = new Alea(seed);
+export default random = new Alea(seed);
