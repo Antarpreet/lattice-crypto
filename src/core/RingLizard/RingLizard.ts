@@ -1,7 +1,5 @@
-export default class RingLizard {
+export default class RingLizard {}
 
-};
-	
 // // Rejection sampling
 // function testRejectionSampling(c, sigma) {
 // 	// Input: a center c, a gaussian parameter sigma, and a tail-cut parameter tau
@@ -25,9 +23,9 @@ export default class RingLizard {
 // 		}
 // 	}
 // }
-	
+
 // // Karatsuba multiplication
-// function karatsuba(a, b) {	
+// function karatsuba(a, b) {
 // 	var n = b.length;
 // 	if (n <= 32) {
 // 		var cn = (n << 1) - 1;
@@ -61,7 +59,7 @@ export default class RingLizard {
 // 		var c3 = karatsuba(A, B);
 // 		subIntPoly(c3, c1);
 // 		subIntPoly(c3, c2);
-				
+
 // 		// var c = new Array((n << 1) - 1).fill(0);
 // 		var c = new Array((n << 1) - 1);
 // 		for (var k = 0; k < c.length; k++) {
@@ -93,14 +91,14 @@ export default class RingLizard {
 // 		a[i] -= b[i];
 // 	}
 // }
-	
+
 // Multiplies each coefficient by a int. Does not return a new polynomial but modifies this polynomial
 // function multInt(a, factor) {
 // 	for (var i = 0; i < a.length; i++) {
-// 		a[i] *= factor;		
+// 		a[i] *= factor;
 // 	}
 // }
-	
+
 // ------------------------------------------- keyGeneration -------------------------------------------
 // var pka;
 // var pkb;
@@ -122,18 +120,18 @@ export default class RingLizard {
 // 	for (var i = 128; i < n; i++) {
 // 		arr_s[i] = 0;
 // 	}
-		
+
 // 	for (var i = 0; i < n; i++) {
 // 		a[i] = nextInt(q);
 // 	}
-		
+
 // 	pka = a;
 // 	s = shuffle(arr_s);
 // 	sks = s;
 // 	b = multSubModPoly(a, s, e, q);
 // 	pkb = b;
 // }
-	
+
 // ***************************************************************
 // function multSubModPoly(a, s, e, modulus) {
 // 	var N = a.length;
@@ -142,7 +140,7 @@ export default class RingLizard {
 // 		return;
 // 	}
 // 	var c = karatsuba(a, s);
-		
+
 // 	var b;
 // 	if (c.length > N) {
 // 		for (var k = N; k < c.length; k++) {
@@ -151,12 +149,12 @@ export default class RingLizard {
 // 		}
 // 		b = copyOf(c, N);
 // 	}
-		
+
 // 	for (var i = 0; i < b.length; i++) {
 // 		b[i] = e[i] - b[i];
-// 		if (modulus == 2048) {			
+// 		if (modulus == 2048) {
 // 			b[i] = b[i] & 2047;
-// 		} else if (modulus == 1024) {			
+// 		} else if (modulus == 1024) {
 // 			b[i] = b[i] & 1023;
 // 		} else {
 // 			b[i] %= modulus;
@@ -174,7 +172,7 @@ export default class RingLizard {
 // 	a = pka;
 // 	b = pkb;
 // 	var arr_r = new Array(n);
-	
+
 // 	for (var i = 0; i < 64; i++) {
 // 		arr_r[i] = 1;
 // 		arr_r[i+ 64] = -1;
@@ -182,11 +180,11 @@ export default class RingLizard {
 // 	for (var i = 128; i < n; i++) {
 // 		arr_r[i] = 0;
 // 	}
-			
+
 // 	var r = shuffle(arr_r);
 // 	var c1 = multModPolyC1(a, r, 0.25, 256);
 // 	var c2 = multAddModPolyC2(b, r, _m, 0.25, 256);
-		
+
 // 	cpc1 = c1;
 // 	cpc2 = c2;
 // }
@@ -198,7 +196,7 @@ export default class RingLizard {
 // 		return;
 // 	}
 // 	var c = karatsuba(a, r);
-		
+
 // 	var c1;
 // 	if (c.length > N) {
 // 		for (var k = N; k < c.length; k++) {
@@ -207,12 +205,12 @@ export default class RingLizard {
 // 		}
 // 		c1 = copyOf(c, N);
 // 	}
-		
+
 // 	for (var i = 0; i < c1.length; i++) {
 // 		c1[i] = Math.round(c1[i] * f);
-// 		if (modulus == 2048) {			
+// 		if (modulus == 2048) {
 // 			c1[i] = c1[i] & 2047;
-// 		} else if (modulus == 256) {			
+// 		} else if (modulus == 256) {
 // 			c1[i] = c1[i] & 255;
 // 		} else {
 // 			c1[i] %= modulus;
@@ -223,7 +221,7 @@ export default class RingLizard {
 // 	}
 // 	return c1;
 // }
-	
+
 // function multAddModPolyC2(b, r, _m, f, modulus) {
 // 	var N = b.length;
 // 	if (r.length != N) {
@@ -231,7 +229,7 @@ export default class RingLizard {
 // 		return;
 // 	}
 // 	var c = karatsuba(b, r);
-		
+
 // 	var c2;
 // 	if (c.length > N) {
 // 		for (var k = N; k < c.length; k++) {
@@ -240,12 +238,12 @@ export default class RingLizard {
 // 		}
 // 		c2 = copyOf(c, N);
 // 	}
-	
+
 // 	for (var i = 0; i < c2.length; i++) {
 // 		c2[i] = Math.round((c2[i] * f) + _m[i]);
-// 		if (modulus == 2048) {			
+// 		if (modulus == 2048) {
 // 			c2[i] = c2[i] & 2047;
-// 		} else if (modulus == 256) {			
+// 		} else if (modulus == 256) {
 // 			c2[i] = c2[i] & 255;
 // 		} else {
 // 			c2[i] %= modulus;
@@ -256,7 +254,7 @@ export default class RingLizard {
 // 	}
 // 	return c2;
 // }
-	
+
 // ------------------------------------------- decrypt -------------------------------------------
 // var result; // result
 // function decrypt() {
@@ -273,9 +271,9 @@ export default class RingLizard {
 // 		alert("Number of coefficients must be the same");
 // 		return;
 // 	}
-		
+
 // 	var c = karatsuba(c1, s);
-		
+
 // 	var res;
 // 	if (c.length > N) {
 // 		for (var k = N; k < c.length; k++) {
@@ -284,12 +282,12 @@ export default class RingLizard {
 // 		}
 // 		res = copyOf(c, N);
 // 	}
-		
+
 // 	for (var i = 0; i < res.length; i++) {
 // 		res[i] = Math.round((c2[i] + res[i]) * f);
-// 		if (modulus == 2048) {			
+// 		if (modulus == 2048) {
 // 			res[i] = res[i] & 2047;
-// 		} else if (modulus == 2) {			
+// 		} else if (modulus == 2) {
 // 			res[i] = res[i] & 1;
 // 		} else {
 // 			res[i] %= modulus;
@@ -306,7 +304,7 @@ export default class RingLizard {
 // 	var q = 1024;
 // 	var a_1 = 154;	//a^{-1}
 // 	var sigma = 6.649 / 2.5066;	// a*q/sqrt(2*PI)
-		
+
 // 	print("Test ring-lizard:");
 // 	print("Input:");
 // 	print("n = " + n);
@@ -317,7 +315,7 @@ export default class RingLizard {
 // 	for (var i = 0; i < n; i++) {
 // 		m[i] = nextInt(2);
 // 	}
-			
+
 // 	var _m = copyOf(m, m.length);
 // 	//encode
 // 	multInt(_m, 128);
@@ -325,21 +323,21 @@ export default class RingLizard {
 // 	keyGeneration(n, q, sigma);
 // 	encrypt(n, _m);
 // 	decrypt();
-		
+
 // 	var ms = m.toString();
 // 	var rs = result.toString();
-				
+
 // 	print("Output:");
 // 	print("plaintext =  " + ms);
 // 	print("result = " + rs);
-		
+
 // 	if(rs == ms) {
 // 		print("Success!");
 // 	} else {
 // 		print("Failed");
 // 	}
 // }
-	
+
 // ***********************************************************
 // function print(message) {
 // //	WScript.Echo(message);

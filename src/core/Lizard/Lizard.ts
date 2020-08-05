@@ -1,6 +1,4 @@
-export default class Lizard {
-
-};
+export default class Lizard {}
 
 // ***********************************************************
 // var am;
@@ -32,7 +30,7 @@ export default class Lizard {
 // 	//B = AS + E mod q, m*l
 // 	var bmatrix = multiply(amatrix, smatrix);
 // 	bmatrix = addMod(bmatrix, ematrix, q);
-	
+
 // 	am = amatrix;
 // 	bm = bmatrix;
 // 	sm = smatrix;
@@ -41,11 +39,11 @@ export default class Lizard {
 // function encrypt(l, n, p, q) {
 // 	var amatrix = am;
 // 	var bmatrix = bm;
-	
+
 // 	var rvector_transpose = rr;	// Z^1*m
 // 	var c1_prime_transpose = encVectorMultiplyMatrix(rvector_transpose, amatrix);
 // 	var c2_prime_transpose = encVectorMultiplyMatrix(rvector_transpose, bmatrix);
-	
+
 // 	var c1_transpose = new Array(n);
 // 	for (var i = 0; i < n; i++) {
 // 		c1_prime_transpose[i] = c1_prime_transpose[i] % q;
@@ -54,7 +52,7 @@ export default class Lizard {
 // 			c1_transpose[i] += p;
 // 		}
 // 	}
-	
+
 // 	var c2_transpose = new Array(l);
 // 	for (var i = 0; i < l; i++) {
 // 		c2_prime_transpose[i] = c2_prime_transpose[i] % q;
@@ -63,7 +61,7 @@ export default class Lizard {
 // 			c2_transpose[i] += p;
 // 		}
 // 	}
-	
+
 // 	av = c1_transpose;
 // 	bv = c2_transpose;
 // }
@@ -107,18 +105,18 @@ export default class Lizard {
 // 	print("q = " + q);
 // 	print("h = " + h);
 // 	print("α = " + alpha);
-	
+
 // 	randomPlaintext();
 // 	keyGeneration(l, m, n, q);
 // 	encrypt(l, n, p, q);
 // 	decrypt(l, q, t);
-	
+
 // 	print("Output:");
 // 	var ms = vvector.toString();
 // 	print("plaintext =  " + ms);
 // 	var ts = resultvector.toString();
 // 	print("result = " + ts);
-	
+
 // 	if(ts == ms) {
 // 		print("Success!");
 // 	} else {

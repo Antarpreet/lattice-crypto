@@ -1,29 +1,26 @@
 // https://github.com/FuKyuToTo/lattice-based-cryptography
 
-export default class NewHope {
-
-};
+export default class NewHope {}
 
 // -----------------------------------Global variables-----------------------------------
 // var ntt_a;
 // var ntt_b = new Array(n);
 // var ntt_s;
 // var ntt_e;
-	
+
 // var ntt_s1;
 // var ntt_e1;
 // var u = new Array(n);
 // var ntt_v = new Array(n);
 // var v;
 // var r;
-	
+
 // var ntt_v1 = new Array(n);
 // var v1;
 // var ka;
 // var kb;
-	
-// var Bmatrix;
 
+// var Bmatrix;
 
 // Binomial sampling
 // function testBinomialSample (value) {
@@ -88,17 +85,17 @@ export default class NewHope {
 // 		var x_1 = v_coeffs[i+ v_coeffs.length/4];
 // 		var x_2 = v_coeffs[i+ v_coeffs.length/2];
 // 		var x_3 = v_coeffs[i+ v_coeffs.length - v_coeffs.length/4];
-			
+
 // 		var v0_0 = Math.round(x_0);
 // 		var v0_1 = Math.round(x_1);
 // 		var v0_2 = Math.round(x_2);
 // 		var v0_3 = Math.round(x_3);
-			
+
 // 		var v1_0 = Math.round(x_0 - 0.5);
 // 		var v1_1 = Math.round(x_1 - 0.5);
 // 		var v1_2 = Math.round(x_2 - 0.5);
 // 		var v1_3 = Math.round(x_3 - 0.5);
-			
+
 // 		var vk_0 = 0, vk_1 = 0, vk_2 = 0, vk_3 = 0, k = 0;
 // 		if (norm1(x_0 - v0_0, x_1 - v0_1, x_2 - v0_2, x_3 - v0_3) < 1) {
 // 			vk_0 = v0_0;
@@ -117,7 +114,7 @@ export default class NewHope {
 // 		vk_1 = vk_1 + (-1.0 * vk_3);
 // 		vk_2 = vk_2 + (-1.0 * vk_3);
 // 		vk_3 = k + (2.0 * vk_3);
-			
+
 // 		v_coeffs[i] = mod(vk_0, 4);
 // 		v_coeffs[i+ v_coeffs.length/4] = mod(vk_1, 4);
 // 		v_coeffs[i+ v_coeffs.length/2] = mod(vk_2, 4);
@@ -133,27 +130,27 @@ export default class NewHope {
 // 		var v_1 = v_coeffs[i+ v_coeffs.length/4] * 1.0 / q;
 // 		var v_2 = v_coeffs[i+ v_coeffs.length/2] * 1.0 / q;
 // 		var v_3 = v_coeffs[i+ v_coeffs.length - v_coeffs.length/4] * 1.0 / q;
-			
+
 // 		var r_0 = r_coeffs[i];
 // 		var r_1 = r_coeffs[i+ r_coeffs.length/4];
 // 		var r_2 = r_coeffs[i+ r_coeffs.length/2];
 // 		var r_3 = r_coeffs[i+ r_coeffs.length - r_coeffs.length/4];
-			
+
 // 		var rvector = [r_0, r_1, r_2, r_3];
 // 		var rTBT = vector_multiply_matrix(rvector, Bmatrix, Bmatrix[0].length);
-			
+
 // 		k[i] = decode(v_0 - rTBT[0]/4.0, v_1 - rTBT[1]/4.0, v_2 - rTBT[2]/4.0, v_3 - rTBT[3]/4.0);
 // 	}
 // 	return k;
 // }
 
 // Decoding function
-// function decode(x_0, x_1, x_2, x_3) {	
+// function decode(x_0, x_1, x_2, x_3) {
 // 	var v_0 = x_0 - Math.round(x_0);
 // 	var v_1 = x_1 - Math.round(x_1);
 // 	var v_2 = x_2 - Math.round(x_2);
 // 	var v_3 = x_3 - Math.round(x_3);
-		
+
 // 	var k = 0;
 // 	if (norm1(v_0, v_1, v_2, v_3) <= 1) {
 // 		k = 0;
@@ -162,7 +159,7 @@ export default class NewHope {
 // 	}
 // 	return k;
 // }
-	
+
 // Multiply a matrix B by a vevtor a, c = a * B
 // function vector_multiply_matrix(a, B, Bcol) {
 // // Matrix inner dimensions must agree
@@ -170,7 +167,7 @@ export default class NewHope {
 // 	for (var j = 0; j < Bcol; j++) {
 // 		c[j] = 0;
 // 	}
-		
+
 // 	for (var i = 0; i < a.length; i++) {
 // 		var Browi = B[i];
 // 		for (var j = 0; j < Bcol; j++) {
@@ -183,12 +180,12 @@ export default class NewHope {
 // function alice0() {
 // 	var arr_s = new Array(n);		// secret key s
 // 	var arr_e = new Array(n);
-		
+
 // 	for (var i = 0; i < n; i++) {
 // 		arr_s[i] = testBinomialSample(nextInt(MO));
 // 		arr_e[i] = testBinomialSample(nextInt(MO));
 // 	}
-		
+
 // 	ntt_s = NTT(arr_s, arr_s.length);
 // 	ntt_e = NTT(arr_e, arr_e.length);
 
@@ -202,30 +199,30 @@ export default class NewHope {
 // 	var arr_s1 = new Array(n);
 // 	var arr_e1 = new Array(n);
 // 	var arr_e2 = new Array(n);
-		
+
 // 	for (var i = 0; i < n; i++) {
 // 		arr_s1[i] = testBinomialSample(nextInt(MO));
 // 		arr_e1[i] = testBinomialSample(nextInt(MO));
 // 		arr_e2[i] = testBinomialSample(nextInt(MO));
 // 	}
-			
+
 // 	ntt_s1 = NTT(arr_s1, arr_s1.length);
 // 	ntt_e1 = NTT(arr_e1, arr_e1.length);
-		
+
 // 	for (var i = 0; i < n; i++) {
 // 		u[i] = (ntt_a[i] * ntt_s1[i] + ntt_e1[i]) % q;  	// Component multiply
 // 		ntt_v[i] = (ntt_b[i] * ntt_s1[i]);
 // 	}
-		
+
 // 	v = INTT(ntt_v, ntt_v.length);
-	
+
 // 	for (var i = 0; i < n; i++) {
 // 		v[i] = (v[i] + arr_e2[i]) % q;
 // 		if(v[i] < 0) {
 // 			v[i] += q;
 // 		}
 // 	}
-		
+
 // 	var bit = nextInt(2);
 // 	// g = (0.5, 0.5, 0.5, 0.5)
 // 	//-------- HelpRec --------
@@ -247,32 +244,32 @@ export default class NewHope {
 // var q = 12289;
 // var k = 16;
 // var MO = 4294967296;	//var MO = Math.pow(2,32);
-	
+
 // function testnewhope() {
 // 	print("Test NewHope:");
 // 	print("Input:");
 // 	print("n = " + n);
 // 	print("q = " + q);
 // 	print("k = " + k);
-		
+
 // 	var arr_a = new Array(n);	// public key a
 // 	for (var j = 0; j < n; j++) {
 // 		arr_a[j] = nextInt(q);
 // 	}
 // 	ntt_a = NTT(arr_a, arr_a.length);
-	
+
 // 	// g = (0.5, 0.5, 0.5, 0.5)
 // 	//var b_arr = [[1,0,0,0.5],[0,1,0,0.5],[0,0,1,0.5],[0,0,0,0.5]];
 // 	Bmatrix = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0.5,0.5,0.5,0.5]];
-	
+
 // 	alice0();
 // 	bob();
 // 	alice1();
-		
+
 // 	print("Output:");
 // 	print("ka: " + ka.toString());
 // 	print("kb: " + kb.toString());
-		
+
 // 	if(ka.toString() == kb.toString()) {
 // 		print("Success!");
 // 	} else {

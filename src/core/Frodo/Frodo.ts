@@ -2,9 +2,7 @@
 // import { Frodo as FrodoConfig } from '../config';
 
 // =======================================================================================
-export default class Frodo {
-
-};
+export default class Frodo {}
 
 // Returns the pseudorandom integer value between low(inclusive) and high(inclusive)
 // function rangeValue(low, high) {
@@ -15,7 +13,7 @@ export default class Frodo {
 // function shuffle(arr) {
 // 	var arr2 = arr.slice();
 // 	for(var j, x, i = arr2.length; i; j = parseInt(random() * i), x = arr2[--i], arr2[i] = arr2[j], arr2[j] = x);
-// 	return arr2;    
+// 	return arr2;
 // }
 
 // Computes Rec()
@@ -35,7 +33,7 @@ export default class Frodo {
 // 			// if use_hint = 1 and h = 0, adding -quarter forces rounding down
 // 			//                     h = 1, adding quarter forces rounding up
 // 			b1s[i][j] = (b1s[i][j] + half + shift) & negmask;
-			
+
 // 			b1s[i][j] >>= 11;
 // 			b1s[i][j] %= 16;
 // 		}
@@ -59,7 +57,7 @@ export default class Frodo {
 // 	//B = AS + E mod q, n*l
 // 	var bmatrix = multiply(amatrix, smatrix);
 // 	bmatrix = addMod(bmatrix, ematrix, q);
-	
+
 // 	am = amatrix;
 // 	bm = bmatrix;
 // 	sm = smatrix;
@@ -68,34 +66,34 @@ export default class Frodo {
 // function bob(l, m, n, q) {
 // 	var amatrix = am;
 // 	var bmatrix = bm;
-	
+
 // 	var s1matrix = ss1;	// Z^m*n
 // 	var e1matrix = ee1;	// Z^m*n
 // 	var e2matrix = ee2;	// Z^m*l
-	
+
 // 	var b1matrix = multiply(s1matrix, amatrix);
 // 	var vmatrix = multiply(s1matrix, bmatrix);
-	
+
 // 	b1matrix = addMod(b1matrix, e1matrix, q);  // Z^m*n
 // 	vmatrix = addMod(vmatrix, e2matrix, q);    // Z^m*l
 // 	var cmatrix = new Array(m);    // Z^m*l
-	
+
 // 	for (var i = 0; i < l; i++) {
 // 		cmatrix[i] = vmatrix[i].slice();
 // 		k1matrix[i] = vmatrix[i].slice();
 // 	}
-	
+
 // 	for (var i = 0; i < m; i++) {
 // 		for (var j = 0; j < l; j++) {
 // 			cmatrix[i][j] = (cmatrix[i][j] >> 10) & 1;	// >> logq - b - 1
 // 			//cmatrix[i][j] = Math.floor(cmatrix[i][j] * 0.0009765625) % 2;
-			
+
 // 			k1matrix[i][j] = (k1matrix[i][j] + 1024) % q;
 // 			k1matrix[i][j] >>= 11;  // >>= logq - b
 // 			//k1matrix[i][j] = Math.round(k1matrix[i][j] * 0.00048828125) % 16;
 // 		}
 // 	}
-	
+
 // 	bb = b1matrix;
 // 	cc = cmatrix;
 // }
@@ -104,7 +102,7 @@ export default class Frodo {
 // 	var b1m = bb;
 // 	var cm = cc;
 // 	var smatrix = sm;
-	
+
 // 	var b1s = multiplyMod(b1m, smatrix, q);    // Z^m*l
 // 	k2matrix = b1s;     // Z^m*l
 // 	rec(k2matrix, m, l, 11, cm);
@@ -118,7 +116,7 @@ export default class Frodo {
 // 	q = 32768,
 // 	logq = 15;
 // 	sigma = 1.3229;
-	
+
 // function testfrodo() {
 // 	print("Test Frodo:");
 // 	print("Input:");
@@ -129,7 +127,7 @@ export default class Frodo {
 // 	print("q = " + q);
 // 	print("sigma = " + sigma);
 // 	print("Output:");
-	
+
 // 	alice0(l, n, q);
 // 	bob(l, m, n, q);
 // 	alice1(l, m, q);
@@ -138,7 +136,7 @@ export default class Frodo {
 // 	print("k_a = " + ka);
 // 	var kb = k1matrix.toString();
 // 	print("k_b = " + kb);
-	
+
 // 	if(ka == kb) {
 // 		print("Success!");
 // 	} else {

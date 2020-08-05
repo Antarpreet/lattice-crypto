@@ -5,48 +5,45 @@ import Utils from '../utils/utils';
 const utils = new Utils();
 
 export default class Kyber {
-    private n: number;
-    private q: number;
+  private n: number;
+  private q: number;
 
-    constructor(n: number, q: number) {
-        this.n = n;
-        this.q = q;
+  constructor(n: number, q: number) {
+    this.n = n;
+    this.q = q;
+  }
+
+  compress2d(modulus: number, q: number, v: number[]): number[] {
+    if (modulus <= 0) {
+      alert('modulus not positive');
+      return [];
     }
 
-    compress2d(modulus: number, q: number, v: number[]): number[] {
-        if (modulus <= 0) {
-            alert("modulus not positive");
-            return [];
+    const vector: number[] = utils.copyOf(v.slice(), v.length);
+    for (let j = 0; j < this.n; j++) {
+      vector[j] = Math.round((vector[j] * 1.0 * modulus) / q);
+      if (modulus === 2048) {
+        vector[j] = vector[j] & 2047;
+      } else if (modulus === 8) {
+        vector[j] = vector[j] & 7;
+      } else {
+        vector[j] %= modulus;
+        if (vector[j] < 0) {
+          vector[j] += modulus;
         }
-        
-        const vector: number[] = utils.copyOf(v.slice(), v.length);
-        for (let j = 0; j < this.n; j++) {
-            vector[j] = Math.round(vector[j] * 1.0 * modulus / q);
-            if (modulus === 2048) {
-                vector[j] = vector[j] & 2047;
-            } 
-            else if (modulus === 8) {
-                vector[j] = vector[j] & 7;
-            } 
-            else {
-                vector[j] %= modulus;
-                if (vector[j] < 0) {
-                    vector[j] += modulus;
-                }
-            }
-        }
-        return vector;
+      }
     }
+    return vector;
+  }
 
-    decompress2d(pow2d: number, q: number, v: number[]): number[] {
-        const vector: number[] = utils.copyOf(v.slice(), v.length);
-        for (let j = 0; j < this.n; j++) {
-            vector[j] = Math.round(vector[j] * 1.0 * q / pow2d);
-        }
-        return vector;
+  decompress2d(pow2d: number, q: number, v: number[]): number[] {
+    const vector: number[] = utils.copyOf(v.slice(), v.length);
+    for (let j = 0; j < this.n; j++) {
+      vector[j] = Math.round((vector[j] * 1.0 * q) / pow2d);
     }
+    return vector;
+  }
 }
-
 
 // Binomial sampling
 // function testBinomialSample (value) {
@@ -54,8 +51,8 @@ export default class Kyber {
 // 	sum = (getBit(value, 0) - getBit(value, 4)) +
 // 		(getBit(value, 1) - getBit(value, 5)) +
 // 		(getBit(value, 2) - getBit(value, 6)) +
-// 		(getBit(value, 3) - getBit(value, 7));			
-// 	return sum;  
+// 		(getBit(value, 3) - getBit(value, 7));
+// 	return sum;
 // }
 
 // var ntt_a00;
@@ -111,7 +108,7 @@ export default class Kyber {
 // 	var e00 = new Array(n);
 // 	var e01 = new Array(n);
 // 	var e02 = new Array(n);
-	
+
 // 	for (var i = 0; i < n; i++) {
 // 		s00[i] = testBinomialSample(nextInt(n));
 // 		s01[i] = testBinomialSample(nextInt(n));
@@ -126,24 +123,24 @@ export default class Kyber {
 // 	ntt_e00 = NTT(e00, e00.length);
 // 	ntt_e01 = NTT(e01, e01.length);
 // 	ntt_e02 = NTT(e02, e02.length);
-	
+
 // 	for (var i = 0; i < n; i++) {
 // 		// Component multiply; point-wise multiplication
 // 		var x1 = (ntt_s00[i] * ntt_a00[i]);
 // 		var x2 = (ntt_s01[i] * ntt_a01[i]);
 // 		var x3 = (ntt_s02[i] * ntt_a02[i]);
 // 		ntt_b00[i] = (x1 + x2 + x3 + ntt_e00[i]) % q;
-		
+
 // 		x1 = (ntt_s00[i] * ntt_a10[i]);
 // 		x2 = (ntt_s01[i] * ntt_a11[i]);
 // 		x3 = (ntt_s02[i] * ntt_a12[i]);
 // 		ntt_b01[i] = (x1 + x2 + x3 + ntt_e01[i]) % q;
-		
+
 // 		x1 = (ntt_s00[i] * ntt_a20[i]);
 // 		x2 = (ntt_s01[i] * ntt_a21[i]);
 // 		x3 = (ntt_s02[i] * ntt_a22[i]);
 // 		ntt_b02[i] = (x1 + x2 + x3 + ntt_e02[i]) % q;
-		
+
 // 	}
 // 	var temp_b00 = INTT(ntt_b00, ntt_b00.length);
 // 	var temp_b01 = INTT(ntt_b01, ntt_b01.length);
@@ -157,7 +154,7 @@ export default class Kyber {
 // 	var temp_b00 = decompress2d(2048, q, b00);
 // 	var temp_b01 = decompress2d(2048, q, b01);
 // 	var temp_b02 = decompress2d(2048, q, b02);
-	
+
 // 	var r00 = new Array(n);
 // 	var r01 = new Array(n);
 // 	var r02 = new Array(n);
@@ -165,7 +162,7 @@ export default class Kyber {
 // 	var e101 = new Array(n);
 // 	var e102 = new Array(n);
 // 	var e200 = new Array(n);
-	
+
 // 	for (var i = 0; i < n; i++) {
 // 		r00[i] = testBinomialSample(nextInt(n));
 // 		r01[i] = testBinomialSample(nextInt(n));
@@ -182,10 +179,10 @@ export default class Kyber {
 // 	ntt_e101 = NTT(e101, e101.length);
 // 	ntt_e102 = NTT(e102, e102.length);
 // 	ntt_e200 = NTT(e200, e200.length);
-	
+
 // 	ntt_b00 = NTT(temp_b00, temp_b00.length);
 // 	ntt_b01 = NTT(temp_b01, temp_b01.length);
-// 	ntt_b02 = NTT(temp_b02, temp_b02.length);	
+// 	ntt_b02 = NTT(temp_b02, temp_b02.length);
 
 // 	for (var i = 0; i < n; i++) {
 // 		// Component multiply; point-wise multiplication
@@ -193,23 +190,23 @@ export default class Kyber {
 // 		var x2 = (ntt_r01[i] * ntt_a10[i]);
 // 		var x3 = (ntt_r02[i] * ntt_a20[i]);
 // 		ntt_c100[i] = (x1 + x2 + x3 + ntt_e100[i]) % q;
-		
+
 // 		x1 = (ntt_r00[i] * ntt_a01[i]);
 // 		x2 = (ntt_r01[i] * ntt_a11[i]);
 // 		x3 = (ntt_r02[i] * ntt_a21[i]);
-// 		ntt_c101[i] = (x1 + x2 + x3 + ntt_e101[i]) % q;	
-		
+// 		ntt_c101[i] = (x1 + x2 + x3 + ntt_e101[i]) % q;
+
 // 		x1 = (ntt_r00[i] * ntt_a02[i]);
 // 		x2 = (ntt_r01[i] * ntt_a12[i]);
 // 		x3 = (ntt_r02[i] * ntt_a22[i]);
 // 		ntt_c102[i] = (x1 + x2 + x3 + ntt_e102[i]) % q;
-		
+
 // 		x1 = (ntt_r00[i] * ntt_b00[i]);
 // 		x2 = (ntt_r01[i] * ntt_b01[i]);
 // 		x3 = (ntt_r02[i] * ntt_b02[i]);
 // 		ntt_c200[i] = (x1 + x2 + x3 + ntt_e200[i] + ntt_m_3841[i]) % q;
 // 	}
-	
+
 // 	var temp_c100 = INTT(ntt_c100, ntt_c100.length);
 // 	var temp_c101 = INTT(ntt_c101, ntt_c101.length);
 // 	var temp_c102 = INTT(ntt_c102, ntt_c102.length);
@@ -226,12 +223,12 @@ export default class Kyber {
 // 	var temp_c101 = decompress2d(2048, q, c101);
 // 	var temp_c102 = decompress2d(2048, q, c102);
 // 	var temp_c200 = decompress2d(8, q, c200);
-	
+
 // 	ntt_c100 = NTT(temp_c100, temp_c100.length);
 // 	ntt_c101 = NTT(temp_c101, temp_c101.length);
 // 	ntt_c102 = NTT(temp_c102, temp_c102.length);
 // 	ntt_c200 = NTT(temp_c200, temp_c200.length);
-	
+
 // 	for (var i = 0; i < n; i++) {
 // 		var x1 = (ntt_s00[i] * ntt_c100[i]);
 // 		var x2 = (ntt_s01[i] * ntt_c101[i]);
@@ -242,7 +239,7 @@ export default class Kyber {
 // 			ntt_v00[i] += q;
 // 		}
 // 	}
-// 	var temp_v00 = INTT(ntt_v00, ntt_v00.length);	
+// 	var temp_v00 = INTT(ntt_v00, ntt_v00.length);
 // 	v00 = compress2d(2, q, temp_v00);
 // }
 
@@ -265,7 +262,7 @@ export default class Kyber {
 // 	console.log("dc1 = " + dc1);
 // 	console.log("dc2 = " + dc2);
 // 	console.log("Output:");
-	
+
 // 	// public key A
 // 	var a00 = new Array(n);
 // 	var a01 = new Array(n);
@@ -276,7 +273,7 @@ export default class Kyber {
 // 	var a20 = new Array(n);
 // 	var a21 = new Array(n);
 // 	var a22 = new Array(n);
-	
+
 // 	var plaintext_3841 = new Array(n);
 // 	for (var i = 0; i < n; i++) {
 // 		a00[i] = nextInt(q);
@@ -305,13 +302,13 @@ export default class Kyber {
 // 	keyGeneration();
 // 	encrypt();
 // 	decrypt();
-	
+
 // 	var km = plaintext.toString();
 // 	var kv = v00.toString();
-	
+
 // 	console.log("plaintext: " + km);
 // 	console.log("result: " + kv);
-	
+
 // 	if (km === kv) {
 // 		console.log("Success!");
 // 	} else {
