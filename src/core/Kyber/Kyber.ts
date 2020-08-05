@@ -1,6 +1,6 @@
 // https://github.com/FuKyuToTo/lattice-based-cryptography
 
-import Utils from '../utils/utils';
+import Utils from '../../utils/utils';
 
 const utils = new Utils();
 
