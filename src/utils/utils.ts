@@ -1,4 +1,5 @@
 import random from '../utils/prng';
+import { Algorithm, Action } from '../models/LatticeCrypto';
 
 export default class Utils {
   // Returns a copy of the original array, truncated or padded with zeros to obtain the specified length
@@ -60,7 +61,7 @@ export default class Utils {
   // utils.INTT('newHope', A, n, bitRev_psiInv_12289_1024, q, INVN);
 
   // Gentleman-Sande (GS) inverse number theoretic transform
-  INTT(algorithm: string, A: number[], n: number, bitRevPsiInv: number[], q: number, INVN: number): number[] {
+  INTT(algorithm: Algorithm, A: number[], n: number, bitRevPsiInv: number[], q: number, INVN: number): number[] {
     const NTT_A_COEFF: number[] = this.copyOf(A.slice(), n);
     let t = 1;
     for (let m = n; m > 1; m >>= 1) {
@@ -76,7 +77,7 @@ export default class Utils {
           let temp = U - V;
 
           switch (algorithm) {
-            case 'kyber':
+            case Algorithm.KYBER:
               while (NTT_A_COEFF[j] < 0) {
                 NTT_A_COEFF[j] = NTT_A_COEFF[j] + q;
               }
@@ -85,7 +86,7 @@ export default class Utils {
                 temp += q;
               }
               break;
-            case 'newHope':
+            case Algorithm.NEW_HOPE:
               if (temp < 0) {
                 temp += q;
               }
@@ -112,7 +113,7 @@ export default class Utils {
   // utils.NTT('newHope', A, n, bitRev_psi_12289_1024, q);
 
   // Cooley-Tukey(CT) forward number theoretic transform
-  NTT(algorithm: string, A: number[], n: number, bitRevPsi: number[], q: number): number[] {
+  NTT(algorithm: Algorithm, A: number[], n: number, bitRevPsi: number[], q: number): number[] {
     const NTT_A_COEFF: number[] = this.copyOf(A.slice(), n);
     let t = n;
     for (let m = 1; m < n; m <<= 1) {
@@ -126,7 +127,7 @@ export default class Utils {
           const V = NTT_A_COEFF[j + t] * S;
           NTT_A_COEFF[j] = (U + V) % q;
           switch (algorithm) {
-            case 'kyber':
+            case Algorithm.KYBER:
               while (NTT_A_COEFF[j] < 0) {
                 NTT_A_COEFF[j] = NTT_A_COEFF[j] + q;
               }
@@ -135,7 +136,7 @@ export default class Utils {
                 NTT_A_COEFF[j + t] = NTT_A_COEFF[j + t] + q;
               }
               break;
-            case 'newHope':
+            case Algorithm.NEW_HOPE:
               NTT_A_COEFF[j + t] = (U - V) % q;
               if (NTT_A_COEFF[j + t] < 0) {
                 NTT_A_COEFF[j + t] = NTT_A_COEFF[j + t] + q;
@@ -254,7 +255,7 @@ export default class Utils {
   }
 
   // Matrix multiplication, C = A * B
-  multiply(algorithm: string, A: number[][], B: number[][]): number[][] {
+  multiply(algorithm: Algorithm, A: number[][], B: number[][]): number[][] {
     const Ax = A.length;
     const Ay = A[0].length;
     const Bx = B.length;
@@ -275,12 +276,12 @@ export default class Utils {
         const Arowi = A[i];
         let s = 0;
         switch (algorithm) {
-          case 'frodo':
+          case Algorithm.FRODO:
             for (let k = 0; k < Ay; k++) {
               s += Arowi[k] * Bcolj[k];
             }
             break;
-          case 'lizard':
+          case Algorithm.LIZARD:
             for (let k = 0; k < Ay; k++) {
               if (Bcolj[k] === 0) {
                 // s += 0;
@@ -303,7 +304,7 @@ export default class Utils {
   }
 
   // Matrix multiplication, C = A * B, each element of C modulo q
-  multiplyMod(algorithm: string, A: number[][], B: number[][], q: number): number[][] {
+  multiplyMod(algorithm: Algorithm, A: number[][], B: number[][], q: number): number[][] {
     const Ax = A.length;
     const Ay = A[0].length;
     const Bx = B.length;
@@ -325,10 +326,10 @@ export default class Utils {
         let s = 0;
         for (let k = 0; k < Ay; k++) {
           switch (algorithm) {
-            case 'frodo':
+            case Algorithm.FRODO:
               s += Arowi[k] * Bcolj[k];
               break;
-            case 'lizard':
+            case Algorithm.LIZARD:
               if (Bcolj[k] === 0) {
                 // s += 0;
               } else if (Bcolj[k] === 1) {
@@ -353,7 +354,7 @@ export default class Utils {
   }
 
   // Multiplies a matrix B by a vector a, c = a * B
-  vectorMultiplyMatrix(algorithm: string, a: number[], B: number[][]): number[][] {
+  vectorMultiplyMatrix(algorithm: Algorithm, a: number[], B: number[][], action: Action): number[][] {
     // var A_x = 1;
     const Ay = a.length;
     const Bx = B.length;
@@ -372,21 +373,18 @@ export default class Utils {
     for (let i = 0; i < Ay; i++) {
       const Browi = B[i];
       for (let j = 0; j < By; j++) {
-        switch (algorithm) {
-          case 'frodo':
-          case 'lizard-decrypt':
+        if ((algorithm === Algorithm.LIZARD && action === Action.DECRYPT) || algorithm === Algorithm.FRODO) {
+          v[j] += a[i] * Browi[j];
+        } else if (algorithm === Algorithm.LIZARD && action === Action.ENCRYPT) {
+          if (a[i] === 0) {
+            // v[j] += 0;
+          } else if (a[i] === 1) {
+            v[j] += Browi[j];
+          } else if (a[i] === -1) {
+            v[j] -= Browi[j];
+          } else {
             v[j] += a[i] * Browi[j];
-            break;
-          case 'lizard-encrypt':
-            if (a[i] === 0) {
-              // v[j] += 0;
-            } else if (a[i] === 1) {
-              v[j] += Browi[j];
-            } else if (a[i] === -1) {
-              v[j] -= Browi[j];
-            } else {
-              v[j] += a[i] * Browi[j];
-            }
+          }
         }
       }
     }
