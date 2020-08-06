@@ -1,284 +1,283 @@
 // https://github.com/FuKyuToTo/lattice-based-cryptography
+import Utils from '../../utils/utils';
+import { Algorithm } from '../../models/LatticeCrypto';
+import { NewHope as NewHopeConfig } from './config';
+
+const utils = new Utils();
 
 export default class NewHope {}
 
-// -----------------------------------Global variables-----------------------------------
-// var ntt_a;
-// var ntt_b = new Array(n);
-// var ntt_s;
-// var ntt_e;
+// ------------------------------------------- start newHope -------------------------------------------
+const n = 1024;
+const q = 12289;
+const k = 16;
+const MO = 4294967296;	// 2^32
 
-// var ntt_s1;
-// var ntt_e1;
-// var u = new Array(n);
-// var ntt_v = new Array(n);
-// var v;
-// var r;
+const u: number[] = new Array(n);
+const BMATRIX = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0.5,0.5,0.5,0.5]];
 
-// var ntt_v1 = new Array(n);
-// var v1;
-// var ka;
-// var kb;
+function generatePublicKeyA(): number[] {
+    const arrA = new Array(n);
+	for (let j = 0; j < n; j++) {
+		arrA[j] = utils.nextInt(q);
+    }
+    return arrA; 
+}
 
-// var Bmatrix;
+function generatePublicKeyB(nttA: number[], nttS: number[], nttE: number[]): number[] {
+    const arrB = new Array(n);
+	for (let i = 0; i < n; i++) {
+		arrB[i] = (nttA[i] * nttS[i] + nttE[i]) % q;  // Component multiply
+    }
+    return arrB;
+}
+
+function testNewHope() {
+	console.log("Test NewHope:");
+	console.log("Input:");
+	console.log("n = " + n);
+	console.log("q = " + q);
+	console.log("k = " + k);
+
+	const arrA = generatePublicKeyA();
+	const nttA = utils.NTT(Algorithm.NEW_HOPE, arrA, arrA.length, NewHopeConfig.bitRev_psi_12289_1024, q);
+
+	const { nttB, nttS } = alice0(nttA);
+	const { kb, r } = bob(nttA, nttB);
+    const ka = alice1(nttS, r);
+
+	console.log("Output:");
+	console.log("ka: " + ka.toString());
+	console.log("kb: " + kb.toString());
+
+	if(ka.toString() === kb.toString()) {
+		console.log("Success!");
+	} else {
+		console.log("Failed");
+	}
+}
+
+testNewHope();
+
+// ------------------------------------- alice0 -------------------------------------
+function alice0(nttA: number[]): { nttB: number[], nttS: number[] } {
+	const arrS = new Array(n);		// secret key s
+	const arrE = new Array(n);
+
+	for (let i = 0; i < n; i++) {
+		arrS[i] = testBinomialSample(utils.nextInt(MO));
+		arrE[i] = testBinomialSample(utils.nextInt(MO));
+	}
+
+	const nttS = utils.NTT(Algorithm.NEW_HOPE, arrS, arrS.length, NewHopeConfig.bitRev_psi_12289_1024, q);
+    const nttE = utils.NTT(Algorithm.NEW_HOPE, arrE, arrE.length, NewHopeConfig.bitRev_psi_12289_1024, q);
+    
+    return {
+        nttB: generatePublicKeyB(nttA, nttS, nttE),
+        nttS
+    };
+}
+// ------------------------------------- bob -------------------------------------
+function bob(nttA: number[], nttB: number[]): { kb: number[], r: number[] } {
+	const arrS1 = new Array(n);
+	const arrE1 = new Array(n);
+    const arrE2 = new Array(n);
+    const nttV = new Array(n);
+
+	for (let i = 0; i < n; i++) {
+		arrS1[i] = testBinomialSample(utils.nextInt(MO));
+		arrE1[i] = testBinomialSample(utils.nextInt(MO));
+		arrE2[i] = testBinomialSample(utils.nextInt(MO));
+	}
+
+	const nttS1 = utils.NTT(Algorithm.NEW_HOPE, arrS1, arrS1.length, NewHopeConfig.bitRev_psi_12289_1024, q);
+	const nttE1 = utils.NTT(Algorithm.NEW_HOPE, arrE1, arrE1.length, NewHopeConfig.bitRev_psi_12289_1024, q);
+
+	for (let i = 0; i < n; i++) {
+		u[i] = (nttA[i] * nttS1[i] + nttE1[i]) % q;  	// Component multiply
+		nttV[i] = (nttB[i] * nttS1[i]);
+	}
+
+	const v = utils.INTT(Algorithm.NEW_HOPE, nttV, nttV.length, NewHopeConfig.bitRev_psiInv_12289_1024, q, NewHopeConfig.INVN);
+
+	for (let i = 0; i < n; i++) {
+		v[i] = (v[i] + arrE2[i]) % q;
+		if(v[i] < 0) {
+			v[i] += q;
+		}
+	}
+
+	const bit = utils.nextInt(2);
+	// -------- HelpRec --------
+	const r = helpRec(v, bit);
+	// -------- Rec --------
+	return { kb: rec(v, r, BMATRIX), r };
+}
+// ------------------------------------- alice1 -------------------------------------
+function alice1(nttS: number[], r: number[]): number[] {
+    const nttV1: number[] = new Array(n);
+	for (let i = 0; i < n; i++) {
+		nttV1[i] = (u[i] * nttS[i]) % q;  // Component multiply
+	}
+	const v1 = utils.INTT(Algorithm.NEW_HOPE, nttV1, nttV1.length, NewHopeConfig.bitRev_psiInv_12289_1024, q, NewHopeConfig.INVN);
+	// -------- Rec --------
+	return rec(v1, r, BMATRIX);
+}
+
 
 // Binomial sampling
-// function testBinomialSample (value) {
-// 	var sum = 0;
-// 	sum = (getBit(value, 0) - getBit(value, 16)) +
-// 		(getBit(value, 1) - getBit(value, 17)) +
-// 		(getBit(value, 2) - getBit(value, 18)) +
-// 		(getBit(value, 3) - getBit(value, 19)) +
-// 		(getBit(value, 4) - getBit(value, 20)) +
-// 		(getBit(value, 5) - getBit(value, 21)) +
-// 		(getBit(value, 6) - getBit(value, 22)) +
-// 		(getBit(value, 7) - getBit(value, 23)) +
-// 		(getBit(value, 8) - getBit(value, 24)) +
-// 		(getBit(value, 9) - getBit(value, 25)) +
-// 		(getBit(value, 10) - getBit(value, 26)) +
-// 		(getBit(value, 11) - getBit(value, 27)) +
-// 		(getBit(value, 12) - getBit(value, 28)) +
-// 		(getBit(value, 13) - getBit(value, 29)) +
-// 		(getBit(value, 14) - getBit(value, 30)) +
-// 		(getBit(value, 15) - getBit(value, 31));
-// 	//return sum;
-// 	return parseInt(Math.abs(sum));
-// }
+function testBinomialSample (value: number): number {
+	let sum = 0;
+	sum = (utils.getBit(value, 0) - utils.getBit(value, 16)) +
+		(utils.getBit(value, 1) - utils.getBit(value, 17)) +
+		(utils.getBit(value, 2) - utils.getBit(value, 18)) +
+		(utils.getBit(value, 3) - utils.getBit(value, 19)) +
+		(utils.getBit(value, 4) - utils.getBit(value, 20)) +
+		(utils.getBit(value, 5) - utils.getBit(value, 21)) +
+		(utils.getBit(value, 6) - utils.getBit(value, 22)) +
+		(utils.getBit(value, 7) - utils.getBit(value, 23)) +
+		(utils.getBit(value, 8) - utils.getBit(value, 24)) +
+		(utils.getBit(value, 9) - utils.getBit(value, 25)) +
+		(utils.getBit(value, 10) - utils.getBit(value, 26)) +
+		(utils.getBit(value, 11) - utils.getBit(value, 27)) +
+		(utils.getBit(value, 12) - utils.getBit(value, 28)) +
+		(utils.getBit(value, 13) - utils.getBit(value, 29)) +
+		(utils.getBit(value, 14) - utils.getBit(value, 30)) +
+		(utils.getBit(value, 15) - utils.getBit(value, 31));
+	// return sum;
+	return Math.abs(sum);
+}
 
 // Computes norm1
-// function norm1(x0, x1, x2, x3){
-// 	//var sum = 0;
-// 	var sum = Math.abs(x0) + Math.abs(x1) + Math.abs(x2) + Math.abs(x3);
-// 	return sum;
-// }
+function norm1(x0: number, x1: number, x2: number, x3: number): number {
+	return Math.abs(x0) + Math.abs(x1) + Math.abs(x2) + Math.abs(x3);
+}
 
 // Modulo modulus
-// function mod(x, modulus) {
-// 	var remainder = 0;
-// 	if (modulus == 4) {
-// 		remainder = x & 3;
-// 	} else if (modulus == 2048) {
-// 		remainder = x & 2047;
-// 	} else {
-// 		remainder %= modulus;
-// 		while (remainder < 0) {
-// 			remainder += modulus;
-// 		}
-// 	}
-// 	return remainder;
-// }
+function mod(x: number, modulus: number): number {
+	let remainder = 0;
+	if (modulus === 4) {
+		remainder = x & 3;
+	} else if (modulus === 2048) {
+		remainder = x & 2047;
+	} else {
+		remainder %= modulus;
+		while (remainder < 0) {
+			remainder += modulus;
+		}
+	}
+	return remainder;
+}
 
 // Computes helpRec()
-// function helpRec(v, bit){
-// 	var r = new Array(v.length);
-// 	for (var i = 0; i < v.length; i++) {
-// 		r[i] = (v[i] + bit * 0.5) * 4.0 / q;
-// 	}
-// 	cvp(r);
-// 	return r;
-// }
+function helpRec(vv: number[], bit: number): number[] {
+	const rr = new Array(vv.length);
+	for (let i = 0; i < vv.length; i++) {
+		rr[i] = (vv[i] + bit * 0.5) * 4.0 / q;
+	}
+	cvp(rr);
+	return rr;
+}
 
 // Computes CVP()
-// function cvp(v_coeffs) {
-// 	for (var i = 0; i < v_coeffs.length / 4; i++) {
-// 		var x_0 = v_coeffs[i];
-// 		var x_1 = v_coeffs[i+ v_coeffs.length/4];
-// 		var x_2 = v_coeffs[i+ v_coeffs.length/2];
-// 		var x_3 = v_coeffs[i+ v_coeffs.length - v_coeffs.length/4];
+function cvp(vCoefficients: number[]): void {
+	for (let i = 0; i < vCoefficients.length / 4; i++) {
+		const x0 = vCoefficients[i];
+		const x1 = vCoefficients[i+ vCoefficients.length/4];
+		const x2 = vCoefficients[i+ vCoefficients.length/2];
+		const x3 = vCoefficients[i+ vCoefficients.length - vCoefficients.length/4];
 
-// 		var v0_0 = Math.round(x_0);
-// 		var v0_1 = Math.round(x_1);
-// 		var v0_2 = Math.round(x_2);
-// 		var v0_3 = Math.round(x_3);
+		const v00 = Math.round(x0);
+		const v01 = Math.round(x1);
+		const v02 = Math.round(x2);
+		const v03 = Math.round(x3);
 
-// 		var v1_0 = Math.round(x_0 - 0.5);
-// 		var v1_1 = Math.round(x_1 - 0.5);
-// 		var v1_2 = Math.round(x_2 - 0.5);
-// 		var v1_3 = Math.round(x_3 - 0.5);
+		const v10 = Math.round(x0 - 0.5);
+		const v11 = Math.round(x1 - 0.5);
+		const v12 = Math.round(x2 - 0.5);
+		const v13 = Math.round(x3 - 0.5);
 
-// 		var vk_0 = 0, vk_1 = 0, vk_2 = 0, vk_3 = 0, k = 0;
-// 		if (norm1(x_0 - v0_0, x_1 - v0_1, x_2 - v0_2, x_3 - v0_3) < 1) {
-// 			vk_0 = v0_0;
-// 			vk_1 = v0_1;
-// 			vk_2 = v0_2;
-// 			vk_3 = v0_3;
-// 			k = 0;
-// 		} else {
-// 			vk_0 = v1_0;
-// 			vk_1 = v1_1;
-// 			vk_2 = v1_2;
-// 			vk_3 = v1_3;
-// 			k = 1;
-// 		}
-// 		vk_0 = vk_0 + (-1.0 * vk_3);
-// 		vk_1 = vk_1 + (-1.0 * vk_3);
-// 		vk_2 = vk_2 + (-1.0 * vk_3);
-// 		vk_3 = k + (2.0 * vk_3);
+        let vk0 = 0;
+        let vk1 = 0;
+        let vk2 = 0;
+        let vk3 = 0;
+        let kk = 0;
+		if (norm1(x0 - v00, x1 - v01, x2 - v02, x3 - v03) < 1) {
+			vk0 = v00;
+			vk1 = v01;
+			vk2 = v02;
+			vk3 = v03;
+			kk = 0;
+		} else {
+			vk0 = v10;
+			vk1 = v11;
+			vk2 = v12;
+			vk3 = v13;
+			kk = 1;
+		}
+		vk0 = vk0 + (-1.0 * vk3);
+		vk1 = vk1 + (-1.0 * vk3);
+		vk2 = vk2 + (-1.0 * vk3);
+		vk3 = kk + (2.0 * vk3);
 
-// 		v_coeffs[i] = mod(vk_0, 4);
-// 		v_coeffs[i+ v_coeffs.length/4] = mod(vk_1, 4);
-// 		v_coeffs[i+ v_coeffs.length/2] = mod(vk_2, 4);
-// 		v_coeffs[i+ v_coeffs.length - v_coeffs.length/4] = mod(vk_3, 4);
-// 	}
-// }
+		vCoefficients[i] = mod(vk0, 4);
+		vCoefficients[i+ vCoefficients.length/4] = mod(vk1, 4);
+		vCoefficients[i+ vCoefficients.length/2] = mod(vk2, 4);
+		vCoefficients[i+ vCoefficients.length - vCoefficients.length/4] = mod(vk3, 4);
+	}
+}
 
 // Computes Rec()
-// function rec(v_coeffs, r_coeffs, Bmatrix) {
-// 	var k = new Array(r_coeffs.length/4);
-// 	for (var i = 0; i < v_coeffs.length/4; i++) {
-// 		var v_0 = v_coeffs[i] * 1.0 / q;
-// 		var v_1 = v_coeffs[i+ v_coeffs.length/4] * 1.0 / q;
-// 		var v_2 = v_coeffs[i+ v_coeffs.length/2] * 1.0 / q;
-// 		var v_3 = v_coeffs[i+ v_coeffs.length - v_coeffs.length/4] * 1.0 / q;
+function rec(vCoefficients: number[], rCoefficients: number[], BMatrix: number[][]): number[] {
+	const kk = new Array(rCoefficients.length/4);
+	for (let i = 0; i < vCoefficients.length/4; i++) {
+		const v0 = vCoefficients[i] * 1.0 / q;
+		const v11 = vCoefficients[i+ vCoefficients.length/4] * 1.0 / q;
+		const v2 = vCoefficients[i+ vCoefficients.length/2] * 1.0 / q;
+		const v3 = vCoefficients[i+ vCoefficients.length - vCoefficients.length/4] * 1.0 / q;
 
-// 		var r_0 = r_coeffs[i];
-// 		var r_1 = r_coeffs[i+ r_coeffs.length/4];
-// 		var r_2 = r_coeffs[i+ r_coeffs.length/2];
-// 		var r_3 = r_coeffs[i+ r_coeffs.length - r_coeffs.length/4];
+		const r0 = rCoefficients[i];
+		const r1 = rCoefficients[i+ rCoefficients.length/4];
+		const r2 = rCoefficients[i+ rCoefficients.length/2];
+		const r3 = rCoefficients[i+ rCoefficients.length - rCoefficients.length/4];
 
-// 		var rvector = [r_0, r_1, r_2, r_3];
-// 		var rTBT = vector_multiply_matrix(rvector, Bmatrix, Bmatrix[0].length);
+		const rVector = [r0, r1, r2, r3];
+		const rTBT = vector_multiply_matrix(rVector, BMatrix, BMatrix[0].length);
 
-// 		k[i] = decode(v_0 - rTBT[0]/4.0, v_1 - rTBT[1]/4.0, v_2 - rTBT[2]/4.0, v_3 - rTBT[3]/4.0);
-// 	}
-// 	return k;
-// }
+		kk[i] = decode(v0 - rTBT[0]/4.0, v11 - rTBT[1]/4.0, v2 - rTBT[2]/4.0, v3 - rTBT[3]/4.0);
+	}
+	return kk;
+}
 
 // Decoding function
-// function decode(x_0, x_1, x_2, x_3) {
-// 	var v_0 = x_0 - Math.round(x_0);
-// 	var v_1 = x_1 - Math.round(x_1);
-// 	var v_2 = x_2 - Math.round(x_2);
-// 	var v_3 = x_3 - Math.round(x_3);
+function decode(x0: number, x1: number, x2: number, x3: number): number {
+	const v0 = x0 - Math.round(x0);
+	const v11 = x1 - Math.round(x1);
+	const v2 = x2 - Math.round(x2);
+	const v3 = x3 - Math.round(x3);
 
-// 	var k = 0;
-// 	if (norm1(v_0, v_1, v_2, v_3) <= 1) {
-// 		k = 0;
-// 	} else {
-// 		k = 1;
-// 	}
-// 	return k;
-// }
+	let kk = 0;
+	if (norm1(v0, v11, v2, v3) <= 1) {
+		kk = 0;
+	} else {
+		kk = 1;
+	}
+	return kk;
+}
 
-// Multiply a matrix B by a vevtor a, c = a * B
-// function vector_multiply_matrix(a, B, Bcol) {
-// // Matrix inner dimensions must agree
-// 	var c = new Array(Bcol);
-// 	for (var j = 0; j < Bcol; j++) {
-// 		c[j] = 0;
-// 	}
+// Multiply a matrix B by a vector a, c = a * B
+function vector_multiply_matrix(a: number[], B: number[][], BColumnSize: number): number[] {
+// Matrix inner dimensions must agree
+	const c = new Array(BColumnSize);
+	for (let j = 0; j < BColumnSize; j++) {
+		c[j] = 0;
+	}
 
-// 	for (var i = 0; i < a.length; i++) {
-// 		var Browi = B[i];
-// 		for (var j = 0; j < Bcol; j++) {
-// 			c[j] += Browi[j]*a[i];
-// 		}
-// 	}
-// 	return c;
-// }
-// ------------------------------------- alice0 -------------------------------------
-// function alice0() {
-// 	var arr_s = new Array(n);		// secret key s
-// 	var arr_e = new Array(n);
-
-// 	for (var i = 0; i < n; i++) {
-// 		arr_s[i] = testBinomialSample(nextInt(MO));
-// 		arr_e[i] = testBinomialSample(nextInt(MO));
-// 	}
-
-// 	ntt_s = NTT(arr_s, arr_s.length);
-// 	ntt_e = NTT(arr_e, arr_e.length);
-
-// 	//public key b
-// 	for (var i = 0; i < n; i++) {
-// 		ntt_b[i] = (ntt_a[i] * ntt_s[i] + ntt_e[i]) % q;  // Component multiply
-// 	}
-// }
-// ------------------------------------- bob -------------------------------------
-// function bob() {
-// 	var arr_s1 = new Array(n);
-// 	var arr_e1 = new Array(n);
-// 	var arr_e2 = new Array(n);
-
-// 	for (var i = 0; i < n; i++) {
-// 		arr_s1[i] = testBinomialSample(nextInt(MO));
-// 		arr_e1[i] = testBinomialSample(nextInt(MO));
-// 		arr_e2[i] = testBinomialSample(nextInt(MO));
-// 	}
-
-// 	ntt_s1 = NTT(arr_s1, arr_s1.length);
-// 	ntt_e1 = NTT(arr_e1, arr_e1.length);
-
-// 	for (var i = 0; i < n; i++) {
-// 		u[i] = (ntt_a[i] * ntt_s1[i] + ntt_e1[i]) % q;  	// Component multiply
-// 		ntt_v[i] = (ntt_b[i] * ntt_s1[i]);
-// 	}
-
-// 	v = INTT(ntt_v, ntt_v.length);
-
-// 	for (var i = 0; i < n; i++) {
-// 		v[i] = (v[i] + arr_e2[i]) % q;
-// 		if(v[i] < 0) {
-// 			v[i] += q;
-// 		}
-// 	}
-
-// 	var bit = nextInt(2);
-// 	// g = (0.5, 0.5, 0.5, 0.5)
-// 	//-------- HelpRec --------
-// 	r = helpRec(v, bit);
-// 	//-------- Rec --------
-// 	kb = rec(v, r, Bmatrix);
-// }
-// ------------------------------------- alice1 -------------------------------------
-// function alice1() {
-// 	for (var i = 0; i < n; i++) {
-// 		ntt_v1[i] = (u[i] * ntt_s[i]) % q;  // Component multiply
-// 	}
-// 	v1 = INTT(ntt_v1, ntt_v1.length);
-// 	//-------- Rec --------
-// 	ka = rec(v1, r, Bmatrix);
-// }
-// ------------------------------------------- start newhope -------------------------------------------
-// var n = 1024;
-// var q = 12289;
-// var k = 16;
-// var MO = 4294967296;	//var MO = Math.pow(2,32);
-
-// function testnewhope() {
-// 	print("Test NewHope:");
-// 	print("Input:");
-// 	print("n = " + n);
-// 	print("q = " + q);
-// 	print("k = " + k);
-
-// 	var arr_a = new Array(n);	// public key a
-// 	for (var j = 0; j < n; j++) {
-// 		arr_a[j] = nextInt(q);
-// 	}
-// 	ntt_a = NTT(arr_a, arr_a.length);
-
-// 	// g = (0.5, 0.5, 0.5, 0.5)
-// 	//var b_arr = [[1,0,0,0.5],[0,1,0,0.5],[0,0,1,0.5],[0,0,0,0.5]];
-// 	Bmatrix = [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0.5,0.5,0.5,0.5]];
-
-// 	alice0();
-// 	bob();
-// 	alice1();
-
-// 	print("Output:");
-// 	print("ka: " + ka.toString());
-// 	print("kb: " + kb.toString());
-
-// 	if(ka.toString() == kb.toString()) {
-// 		print("Success!");
-// 	} else {
-// 		print("Failed");
-// 	}
-// }
-// //***********************************************************
-// function print(message) {
-// 	//WScript.Echo(message);	//for WSH
-// 	console.log(message);
-// }
-// testnewhope();
+	for (let i = 0; i < a.length; i++) {
+		const BRowI = B[i];
+		for (let j = 0; j < BColumnSize; j++) {
+			c[j] += BRowI[j]*a[i];
+		}
+	}
+	return c;
+}
