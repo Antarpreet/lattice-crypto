@@ -1,3 +1,1 @@
-export default class Signature {
-
-};
+export default class Signature {}

@@ -7,17 +7,17 @@ import KeyPair from './Key';
 import { LatticeCryptoOptions, Algorithm } from './models/LatticeCrypto';
 
 export default class LatticeCrypto {
-    algorithm: Algorithm;
-    keyPair: KeyPair;
+  algorithm: Algorithm;
+  keyPair: KeyPair;
 
-    constructor(options?: LatticeCryptoOptions) {
-        // set default algorithm to use to be Kyber
-        this.algorithm = Algorithm.KYBER;
-        // if algorithm is provided, use that one
-        if (options && options.algorithm) {
-            this.algorithm = options.algorithm;
-        }
-
-        this.keyPair = new KeyPair(this.algorithm);
+  constructor(options?: LatticeCryptoOptions) {
+    // set default algorithm to use to be Kyber
+    this.algorithm = Algorithm.KYBER;
+    // if algorithm is provided, use that one
+    if (options && options.algorithm) {
+      this.algorithm = options.algorithm;
     }
-};
+
+    this.keyPair = new KeyPair(this.algorithm);
+  }
+}

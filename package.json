@@ -1,7 +1,7 @@
 {
   "name": "@atb/lattice-crypto",
-  "version": "1.0.1",
-  "description": "A Lattice based cryptography library for JS",
+  "version": "0.0.1",
+  "description": "A Lattice based cryptography library for JS - Under Development",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "keywords": [
