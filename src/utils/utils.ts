@@ -354,7 +354,7 @@ export default class Utils {
   }
 
   // Multiplies a matrix B by a vector a, c = a * B
-  vectorMultiplyMatrix(algorithm: Algorithm, a: number[], B: number[][], action: Action): number[][] {
+  vectorMultiplyMatrix(algorithm: Algorithm, a: number[], B: number[][], action?: Action): number[] {
     // var A_x = 1;
     const Ay = a.length;
     const Bx = B.length;

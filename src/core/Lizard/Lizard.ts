@@ -1,131 +1,141 @@
+import Utils from '../../utils/utils';
+import { Algorithm, Action } from '../../models/LatticeCrypto';
+import { Lizard as LizardConfig } from './config';
+
+const utils = new Utils();
+
 export default class Lizard {}
 
-// ***********************************************************
-// var am;
-// var bm;
-// var sm;
-// var vvector;
-// var av;
-// var bv;
-// var resultvector;
-// var m_transpose;
-// ***********************************************************
-// function randomPlaintext () {
-// 	var plaintext = new Array(l);
-// 	for (var i = 0; i < l; i++) {
-//        		plaintext[i] = nextInt(2);
-// 	}
-// 	vvector = plaintext;
-// 	m_transpose = scalarMultiplyVector(128, vvector);
-// }
-// ***********************************************************
-// function keyGeneration(l, m, n, q) {
-// 	//A, m*n
-// 	var amatrix = initMatrixRandom(m, n, q);
-// 	//var amatrix = aa;	// Does not apply in WSH
-// 	//S, n*l
-// 	var smatrix = ss;
-// 	//E, m*l
-// 	var ematrix = ee;
-// 	//B = AS + E mod q, m*l
-// 	var bmatrix = multiply(amatrix, smatrix);
-// 	bmatrix = addMod(bmatrix, ematrix, q);
-
-// 	am = amatrix;
-// 	bm = bmatrix;
-// 	sm = smatrix;
-// }
-
-// function encrypt(l, n, p, q) {
-// 	var amatrix = am;
-// 	var bmatrix = bm;
-
-// 	var rvector_transpose = rr;	// Z^1*m
-// 	var c1_prime_transpose = encVectorMultiplyMatrix(rvector_transpose, amatrix);
-// 	var c2_prime_transpose = encVectorMultiplyMatrix(rvector_transpose, bmatrix);
-
-// 	var c1_transpose = new Array(n);
-// 	for (var i = 0; i < n; i++) {
-// 		c1_prime_transpose[i] = c1_prime_transpose[i] % q;
-// 		c1_transpose[i] = Math.round(0.25 * c1_prime_transpose[i]) % p;
-// 		if (c1_transpose[i] < 0) {
-// 			c1_transpose[i] += p;
-// 		}
-// 	}
-
-// 	var c2_transpose = new Array(l);
-// 	for (var i = 0; i < l; i++) {
-// 		c2_prime_transpose[i] = c2_prime_transpose[i] % q;
-// 		c2_transpose[i] = Math.round(m_transpose[i] + (0.25 * c2_prime_transpose[i])) % p;
-// 		if (c2_transpose[i] < 0) {
-// 			c2_transpose[i] += p;
-// 		}
-// 	}
-
-// 	av = c1_transpose;
-// 	bv = c2_transpose;
-// }
-
-// function decrypt(l, q, t) {
-// 	var c1vector_transpose = av;
-// 	var c2vector_transpose = bv;
-// 	var smatrix = sm;
-
-// 	var c1TS = decVectorMultiplyMatrix(c1vector_transpose, smatrix);
-// 	var resultvector_transpose = vectorSubstract(c2vector_transpose, c1TS);
-// 	//resultvector = scalarMultiply(0.0078125, resultvector_transpose);	// t/p = 1/128
-// 	resultvector = new Array(l);
-// 	for (var i = 0; i < l; i++) {
-// 		resultvector[i] = Math.round(0.0078125 * resultvector_transpose[i]) % t;
-// 		if (resultvector[i] < 0) {
-// 			resultvector[i] += t;
-// 		}
-// 	}
-// }
-// ===============================================================================
 // ------------------------------------------- start lizard -------------------------------------------
-// var m = 960,
-// 	n = 608,
-// 	l = 256,
-//    	t = 2,
-// 	p = 256,
-// 	q = 1024,
-// 	h = 128,
-// 	r = 1,
-// 	alpha = 0.000363;
+const m = 960;
+const n = 608;
+const l = 256;
+const t = 2;
+const p = 256;
+const q = 1024;
+const h = 128;
+const r = 1;
+const alpha = 0.000363;
 
-// function testlizard() {
-// 	print("Test Lizard:");
-// 	print("Input:");
-// 	print("m = " + m);
-// 	print("n = " + n);
-// 	print("l = " + l);
-// 	print("t = " + t);
-// 	print("p = " + p);
-// 	print("q = " + q);
-// 	print("h = " + h);
-// 	print("α = " + alpha);
+function testLizard() {
+	console.log("Test Lizard:");
+	console.log("Input:");
+	console.log("m = " + m);
+	console.log("n = " + n);
+	console.log("l = " + l);
+	console.log("t = " + t);
+	console.log("p = " + p);
+	console.log("q = " + q);
+	console.log("h = " + h);
+	console.log("α = " + alpha);
 
-// 	randomPlaintext();
-// 	keyGeneration(l, m, n, q);
-// 	encrypt(l, n, p, q);
-// 	decrypt(l, q, t);
+	const {vVector, mTranspose} = randomPlaintext();
+	const {am, bm, sm} = keyGeneration(m, n, q);
+	const {av, bv} = encrypt(l, n, p, q, am, bm, mTranspose);
+	const resultVector = decrypt(l, t, sm, av, bv);
 
-// 	print("Output:");
-// 	var ms = vvector.toString();
-// 	print("plaintext =  " + ms);
-// 	var ts = resultvector.toString();
-// 	print("result = " + ts);
+	console.log("Output:");
+	const ms = vVector.toString();
+	console.log("plaintext =  " + ms);
+	const ts = resultVector.toString();
+	console.log("result = " + ts);
 
-// 	if(ts == ms) {
-// 		print("Success!");
-// 	} else {
-// 		print("Failed");
-// 	}
-// }
-// ***********************************************************
-// function print(message) {
-// 	//WScript.Echo(message);
-// 	console.log(message);
-// }
-// testlizard();
+	if(ts === ms) {
+		console.log("Success!");
+	} else {
+		console.log("Failed");
+	}
+}
+
+testLizard();
+
+function randomPlaintext (): {vVector: number[], mTranspose: number[]} {
+	const plaintext: number[] = new Array(l);
+	for (let i = 0; i < l; i++) {
+       		plaintext[i] = utils.nextInt(2);
+	}
+	const vVector = plaintext;
+    const mTranspose = utils.scalarMultiplyVector(128, vVector);
+    
+    return {
+        vVector,
+        mTranspose
+    };
+}
+
+function keyGeneration(mm: number, nn: number, qq: number): {am: number[][], bm: number[][], sm: number[][]} {
+	// A, m*n
+	const aMatrix = utils.initMatrixRandom(mm, nn, qq);
+	// var aMatrix = aa;	// Does not apply in WSH
+	// S, n*l
+	const sMatrix = LizardConfig.ss;
+	// E, m*l
+	const eMatrix = LizardConfig.ee;
+	// B = AS + E mod q, m*l
+	let bMatrix = utils.multiply(Algorithm.LIZARD, aMatrix, sMatrix);
+	bMatrix = utils.addMod(bMatrix, eMatrix, qq);
+
+	const am = aMatrix;
+	const bm = bMatrix;
+    const sm = sMatrix;
+    
+    return {
+        am,
+        bm,
+        sm
+    };
+}
+
+function encrypt(ll: number, nn: number, pp: number, qq: number, am: number[][], bm: number[][], mTranspose: number[]): {av: number[], bv: number[]} {
+	const aMatrix = am;
+	const bMatrix = bm;
+
+	const rVectorTranspose = LizardConfig.rr;	// Z^1*m
+	const c1PrimeTranspose = utils.vectorMultiplyMatrix(Algorithm.LIZARD, rVectorTranspose, aMatrix, Action.ENCRYPT);
+	const c2PrimeTranspose = utils.vectorMultiplyMatrix(Algorithm.LIZARD, rVectorTranspose, bMatrix, Action.ENCRYPT);
+
+	const c1Transpose: number[] = new Array(nn);
+	for (let i = 0; i < nn; i++) {
+		c1PrimeTranspose[i] = c1PrimeTranspose[i] % qq;
+		c1Transpose[i] = Math.round(0.25 * c1PrimeTranspose[i]) % pp;
+		if (c1Transpose[i] < 0) {
+			c1Transpose[i] += pp;
+		}
+	}
+
+	const c2Transpose: number[] = new Array(ll);
+	for (let i = 0; i < ll; i++) {
+		c2PrimeTranspose[i] = c2PrimeTranspose[i] % qq;
+		c2Transpose[i] = Math.round(mTranspose[i] + (0.25 * c2PrimeTranspose[i])) % pp;
+		if (c2Transpose[i] < 0) {
+			c2Transpose[i] += pp;
+		}
+	}
+
+	const av = c1Transpose;
+    const bv = c2Transpose;
+    
+    return {
+        av,
+        bv
+    };
+}
+
+function decrypt(ll: number, tt: number, sm: number[][], av: number[], bv: number[]): number[] {
+	const c1vectorTranspose = av;
+	const c2vectorTranspose = bv;
+	const sMatrix = sm;
+
+	const c1TS = utils.vectorMultiplyMatrix(Algorithm.LIZARD, c1vectorTranspose, sMatrix, Action.DECRYPT);
+	const resultVectorTranspose = utils.vectorSubtract(c2vectorTranspose, c1TS);
+	// resultVector = scalarMultiply(0.0078125, resultVectorTranspose);	// t/p = 1/128
+	const resultVector = new Array(ll);
+	for (let i = 0; i < ll; i++) {
+		resultVector[i] = Math.round(0.0078125 * resultVectorTranspose[i]) % tt;
+		if (resultVector[i] < 0) {
+			resultVector[i] += tt;
+		}
+    }
+    
+    return resultVector;
+}

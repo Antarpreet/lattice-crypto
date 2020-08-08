@@ -1,317 +1,312 @@
 // https://github.com/FuKyuToTo/lattice-based-cryptography
 
 import Utils from '../../utils/utils';
+import { Algorithm } from '../../models/LatticeCrypto';
+import { Kyber as KyberConfig } from './config';
 
 const utils = new Utils();
 
-export default class Kyber {
-  private n: number;
-  private q: number;
+export default class Kyber {}
 
-  constructor(n: number, q: number) {
-    this.n = n;
-    this.q = q;
+const n = 256;
+const k = 3;
+const q = 7681;
+const eta = 4;	// η = 4
+const db = 11;
+const dc1 = 11;
+const dc2 = 3;
+const plainText = new Array(n);
+
+function testKyber() {
+	console.log("Test Kyber:");
+	console.log("Input:");
+	console.log("n = " + n);
+	console.log("k = " + k);
+	console.log("q = " + q);
+	console.log("η = " + eta);
+	console.log("db = " + db);
+	console.log("dc1 = " + dc1);
+	console.log("dc2 = " + dc2);
+	console.log("Output:");
+
+	// public key A
+	const a00 = new Array(n);
+	const a01 = new Array(n);
+	const a02 = new Array(n);
+	const a10 = new Array(n);
+	const a11 = new Array(n);
+	const a12 = new Array(n);
+	const a20 = new Array(n);
+	const a21 = new Array(n);
+	const a22 = new Array(n);
+
+	const plainText3841 = new Array(n);
+	for (let i = 0; i < n; i++) {
+		a00[i] = utils.nextInt(q);
+		a01[i] = utils.nextInt(q);
+		a02[i] = utils.nextInt(q);
+		a10[i] = utils.nextInt(q);
+		a11[i] = utils.nextInt(q);
+		a12[i] = utils.nextInt(q);
+		a20[i] = utils.nextInt(q);
+		a21[i] = utils.nextInt(q);
+		a22[i] = utils.nextInt(q);
+		plainText[i] = utils.nextInt(2);
+		plainText3841[i] = plainText[i] * 3841;
+	}
+	const nttA00 = utils.NTT(Algorithm.KYBER, a00, a00.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttA01 = utils.NTT(Algorithm.KYBER, a01, a01.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttA02 = utils.NTT(Algorithm.KYBER, a02, a02.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttA10 = utils.NTT(Algorithm.KYBER, a10, a10.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttA11 = utils.NTT(Algorithm.KYBER, a11, a11.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttA12 = utils.NTT(Algorithm.KYBER, a12, a12.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttA20 = utils.NTT(Algorithm.KYBER, a20, a20.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttA21 = utils.NTT(Algorithm.KYBER, a21, a21.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttA22 = utils.NTT(Algorithm.KYBER, a22, a22.length, KyberConfig.bitRev_psi_7681_256, q);
+  const nttM3841
+    = utils.NTT(Algorithm.KYBER, plainText3841, plainText3841.length, KyberConfig.bitRev_psi_7681_256, q);
+
+  const {b00, b01, b02, nttS00, nttS01, nttS02}
+    = keyGeneration(nttA00, nttA01, nttA02, nttA10, nttA11, nttA12, nttA20, nttA21, nttA22);
+  const {c100, c101, c102, c200}
+    = encrypt(b00, b01, b02, nttA00, nttA01, nttA02, nttA10, nttA11, nttA12, nttA20, nttA21, nttA22, nttM3841);
+	const v00 = decrypt(c100, c101, c102, c200, nttS00, nttS01, nttS02);
+
+	const km = plainText.toString();
+	const kv = v00.toString();
+
+	console.log("plaintext: " + km);
+	console.log("result: " + kv);
+
+	if (km === kv) {
+		console.log("Success!");
+	} else {
+		console.log("Failed");
+	}
+}
+
+testKyber();
+
+
+function compress2d(modulus: number, qq: number, v: number[]): number[] {
+  if (modulus <= 0) {
+    alert('modulus not positive');
+    return [];
   }
 
-  compress2d(modulus: number, q: number, v: number[]): number[] {
-    if (modulus <= 0) {
-      alert('modulus not positive');
-      return [];
-    }
-
-    const vector: number[] = utils.copyOf(v.slice(), v.length);
-    for (let j = 0; j < this.n; j++) {
-      vector[j] = Math.round((vector[j] * 1.0 * modulus) / q);
-      if (modulus === 2048) {
-        vector[j] = vector[j] & 2047;
-      } else if (modulus === 8) {
-        vector[j] = vector[j] & 7;
-      } else {
-        vector[j] %= modulus;
-        if (vector[j] < 0) {
-          vector[j] += modulus;
-        }
+  const vector: number[] = utils.copyOf(v.slice(), v.length);
+  for (let j = 0; j < n; j++) {
+    vector[j] = Math.round((vector[j] * 1.0 * modulus) / qq);
+    if (modulus === 2048) {
+      vector[j] = vector[j] & 2047;
+    } else if (modulus === 8) {
+      vector[j] = vector[j] & 7;
+    } else {
+      vector[j] %= modulus;
+      if (vector[j] < 0) {
+        vector[j] += modulus;
       }
     }
-    return vector;
   }
+  return vector;
+}
 
-  decompress2d(pow2d: number, q: number, v: number[]): number[] {
-    const vector: number[] = utils.copyOf(v.slice(), v.length);
-    for (let j = 0; j < this.n; j++) {
-      vector[j] = Math.round((vector[j] * 1.0 * q) / pow2d);
-    }
-    return vector;
+function decompress2d(pow2d: number, qq: number, v: number[]): number[] {
+  const vector: number[] = utils.copyOf(v.slice(), v.length);
+  for (let j = 0; j < n; j++) {
+    vector[j] = Math.round((vector[j] * 1.0 * qq) / pow2d);
   }
+  return vector;
 }
 
 // Binomial sampling
-// function testBinomialSample (value) {
-// 	var sum = 0;
-// 	sum = (getBit(value, 0) - getBit(value, 4)) +
-// 		(getBit(value, 1) - getBit(value, 5)) +
-// 		(getBit(value, 2) - getBit(value, 6)) +
-// 		(getBit(value, 3) - getBit(value, 7));
-// 	return sum;
-// }
+function testBinomialSample (value: number): number {
+	let sum = 0;
+	sum = (utils.getBit(value, 0) - utils.getBit(value, 4)) +
+		(utils.getBit(value, 1) - utils.getBit(value, 5)) +
+		(utils.getBit(value, 2) - utils.getBit(value, 6)) +
+		(utils.getBit(value, 3) - utils.getBit(value, 7));
+	return sum;
+}
 
-// var ntt_a00;
-// var ntt_a01;
-// var ntt_a02;
-// var ntt_a10;
-// var ntt_a11;
-// var ntt_a12;
-// var ntt_a20;
-// var ntt_a21;
-// var ntt_a22;
 
-// var plaintext = new Array(n);
-// var ntt_m_3841 = new Array(n);
+function keyGeneration(nttA00: number[], nttA01: number[], nttA02: number[], nttA10: number[], nttA11: number[],
+  nttA12: number[], nttA20: number[], nttA21: number[], nttA22: number[])
+  : {b00: number[], b01: number[], b02: number[], nttS00: number[], nttS01: number[], nttS02: number[]} {
+	const s00 = new Array(n);
+	const s01 = new Array(n);
+	const s02 = new Array(n);
+	const e00 = new Array(n);
+	const e01 = new Array(n);
+	const e02 = new Array(n);
+  const nttB00 = new Array(n);
+  const nttB01 = new Array(n);
+  const nttB02 = new Array(n);
 
-// var ntt_s00;
-// var ntt_s01;
-// var ntt_s02;
-// var ntt_e00;
-// var ntt_e01;
-// var ntt_e02;
-// var ntt_b00 = new Array(n);
-// var ntt_b01 = new Array(n);
-// var ntt_b02 = new Array(n);
-// var b00;
-// var b01;
-// var b02;
+	for (let i = 0; i < n; i++) {
+		s00[i] = testBinomialSample(utils.nextInt(n));
+		s01[i] = testBinomialSample(utils.nextInt(n));
+		s02[i] = testBinomialSample(utils.nextInt(n));
+		e00[i] = testBinomialSample(utils.nextInt(n));
+		e01[i] = testBinomialSample(utils.nextInt(n));
+		e02[i] = testBinomialSample(utils.nextInt(n));
+	}
+	const nttS00 = utils.NTT(Algorithm.KYBER, s00, s00.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttS01 = utils.NTT(Algorithm.KYBER, s01, s01.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttS02 = utils.NTT(Algorithm.KYBER, s02, s02.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttE00 = utils.NTT(Algorithm.KYBER, e00, e00.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttE01 = utils.NTT(Algorithm.KYBER, e01, e01.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttE02 = utils.NTT(Algorithm.KYBER, e02, e02.length, KyberConfig.bitRev_psi_7681_256, q);
 
-// var ntt_r00;
-// var ntt_r01;
-// var ntt_r02;
-// var ntt_e100;
-// var ntt_e101;
-// var ntt_e102;
-// var ntt_e200;
+	for (let i = 0; i < n; i++) {
+		// Component multiply; point-wise multiplication
+		let x1 = (nttS00[i] * nttA00[i]);
+		let x2 = (nttS01[i] * nttA01[i]);
+		let x3 = (nttS02[i] * nttA02[i]);
+		nttB00[i] = (x1 + x2 + x3 + nttE00[i]) % q;
 
-// var ntt_c100 = new Array(n);
-// var ntt_c101 = new Array(n);
-// var ntt_c102 = new Array(n);
-// var ntt_c200 = new Array(n);
-// var c100;
-// var c101;
-// var c102;
-// var c200;
+		x1 = (nttS00[i] * nttA10[i]);
+		x2 = (nttS01[i] * nttA11[i]);
+		x3 = (nttS02[i] * nttA12[i]);
+		nttB01[i] = (x1 + x2 + x3 + nttE01[i]) % q;
 
-// var ntt_v00 = new Array(n);
-// var v00;
+		x1 = (nttS00[i] * nttA20[i]);
+		x2 = (nttS01[i] * nttA21[i]);
+		x3 = (nttS02[i] * nttA22[i]);
+		nttB02[i] = (x1 + x2 + x3 + nttE02[i]) % q;
 
-// function keyGeneration() {
-// 	var s00 = new Array(n);
-// 	var s01 = new Array(n);
-// 	var s02 = new Array(n);
-// 	var e00 = new Array(n);
-// 	var e01 = new Array(n);
-// 	var e02 = new Array(n);
+	}
+  const tempB00
+    = utils.INTT(Algorithm.KYBER, nttB00, nttB00.length, KyberConfig.bitRev_psiInv_7681_256, q, KyberConfig.INVN);
+  const tempB01
+    = utils.INTT(Algorithm.KYBER, nttB01, nttB01.length, KyberConfig.bitRev_psiInv_7681_256, q, KyberConfig.INVN);
+  const tempB02
+    = utils.INTT(Algorithm.KYBER, nttB02, nttB02.length, KyberConfig.bitRev_psiInv_7681_256, q, KyberConfig.INVN);
+	const b00 = compress2d(2048, q, tempB00);
+	const b01 = compress2d(2048, q, tempB01);
+  const b02 = compress2d(2048, q, tempB02);
+  
+  return {
+    b00,
+    b01,
+    b02,
+    nttS00,
+    nttS01,
+    nttS02
+  };
+}
 
-// 	for (var i = 0; i < n; i++) {
-// 		s00[i] = testBinomialSample(nextInt(n));
-// 		s01[i] = testBinomialSample(nextInt(n));
-// 		s02[i] = testBinomialSample(nextInt(n));
-// 		e00[i] = testBinomialSample(nextInt(n));
-// 		e01[i] = testBinomialSample(nextInt(n));
-// 		e02[i] = testBinomialSample(nextInt(n));
-// 	}
-// 	ntt_s00 = NTT(s00, s00.length);
-// 	ntt_s01 = NTT(s01, s01.length);
-// 	ntt_s02 = NTT(s02, s02.length);
-// 	ntt_e00 = NTT(e00, e00.length);
-// 	ntt_e01 = NTT(e01, e01.length);
-// 	ntt_e02 = NTT(e02, e02.length);
+function encrypt(b00: number[], b01: number[], b02: number[], nttA00: number[], nttA01: number[],
+  nttA02: number[], nttA10: number[], nttA11: number[], nttA12: number[], nttA20: number[], nttA21: number[],
+  nttA22: number[], nttM3841: number[]): {c100: number[], c101: number[], c102: number[], c200: number[]} {
+	const tempB00 = decompress2d(2048, q, b00);
+	const tempB01 = decompress2d(2048, q, b01);
+	const tempB02 = decompress2d(2048, q, b02);
 
-// 	for (var i = 0; i < n; i++) {
-// 		// Component multiply; point-wise multiplication
-// 		var x1 = (ntt_s00[i] * ntt_a00[i]);
-// 		var x2 = (ntt_s01[i] * ntt_a01[i]);
-// 		var x3 = (ntt_s02[i] * ntt_a02[i]);
-// 		ntt_b00[i] = (x1 + x2 + x3 + ntt_e00[i]) % q;
+	const r00 = new Array(n);
+	const r01 = new Array(n);
+	const r02 = new Array(n);
+	const e100 = new Array(n);
+	const e101 = new Array(n);
+	const e102 = new Array(n);
+  const e200 = new Array(n);
+  const nttC100 = new Array(n);
+  const nttC101 = new Array(n);
+  const nttC102 = new Array(n);
+  const nttC200 = new Array(n);
 
-// 		x1 = (ntt_s00[i] * ntt_a10[i]);
-// 		x2 = (ntt_s01[i] * ntt_a11[i]);
-// 		x3 = (ntt_s02[i] * ntt_a12[i]);
-// 		ntt_b01[i] = (x1 + x2 + x3 + ntt_e01[i]) % q;
+	for (let i = 0; i < n; i++) {
+		r00[i] = testBinomialSample(utils.nextInt(n));
+		r01[i] = testBinomialSample(utils.nextInt(n));
+		r02[i] = testBinomialSample(utils.nextInt(n));
+		e100[i] = testBinomialSample(utils.nextInt(n));
+		e101[i] = testBinomialSample(utils.nextInt(n));
+		e102[i] = testBinomialSample(utils.nextInt(n));
+		e200[i] = testBinomialSample(utils.nextInt(n));
+	}
+	const nttR00 = utils.NTT(Algorithm.KYBER, r00, r00.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttR01 = utils.NTT(Algorithm.KYBER, r01, r01.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttR02 = utils.NTT(Algorithm.KYBER, r02, r02.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttE100 = utils.NTT(Algorithm.KYBER, e100, e100.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttE101 = utils.NTT(Algorithm.KYBER, e101, e101.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttE102 = utils.NTT(Algorithm.KYBER, e102, e102.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttE200 = utils.NTT(Algorithm.KYBER, e200, e200.length, KyberConfig.bitRev_psi_7681_256, q);
 
-// 		x1 = (ntt_s00[i] * ntt_a20[i]);
-// 		x2 = (ntt_s01[i] * ntt_a21[i]);
-// 		x3 = (ntt_s02[i] * ntt_a22[i]);
-// 		ntt_b02[i] = (x1 + x2 + x3 + ntt_e02[i]) % q;
+	const nttB00 = utils.NTT(Algorithm.KYBER, tempB00, tempB00.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttB01 = utils.NTT(Algorithm.KYBER, tempB01, tempB01.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttB02 = utils.NTT(Algorithm.KYBER, tempB02, tempB02.length, KyberConfig.bitRev_psi_7681_256, q);
 
-// 	}
-// 	var temp_b00 = INTT(ntt_b00, ntt_b00.length);
-// 	var temp_b01 = INTT(ntt_b01, ntt_b01.length);
-// 	var temp_b02 = INTT(ntt_b02, ntt_b02.length);
-// 	b00 = compress2d(2048, q, temp_b00);
-// 	b01 = compress2d(2048, q, temp_b01);
-// 	b02 = compress2d(2048, q, temp_b02);
-// }
+	for (let i = 0; i < n; i++) {
+		// Component multiply; point-wise multiplication
+		let x1 = (nttR00[i] * nttA00[i]);
+		let x2 = (nttR01[i] * nttA10[i]);
+		let x3 = (nttR02[i] * nttA20[i]);
+		nttC100[i] = (x1 + x2 + x3 + nttE100[i]) % q;
 
-// function encrypt() {
-// 	var temp_b00 = decompress2d(2048, q, b00);
-// 	var temp_b01 = decompress2d(2048, q, b01);
-// 	var temp_b02 = decompress2d(2048, q, b02);
+		x1 = (nttR00[i] * nttA01[i]);
+		x2 = (nttR01[i] * nttA11[i]);
+		x3 = (nttR02[i] * nttA21[i]);
+		nttC101[i] = (x1 + x2 + x3 + nttE101[i]) % q;
 
-// 	var r00 = new Array(n);
-// 	var r01 = new Array(n);
-// 	var r02 = new Array(n);
-// 	var e100 = new Array(n);
-// 	var e101 = new Array(n);
-// 	var e102 = new Array(n);
-// 	var e200 = new Array(n);
+		x1 = (nttR00[i] * nttA02[i]);
+		x2 = (nttR01[i] * nttA12[i]);
+		x3 = (nttR02[i] * nttA22[i]);
+		nttC102[i] = (x1 + x2 + x3 + nttE102[i]) % q;
 
-// 	for (var i = 0; i < n; i++) {
-// 		r00[i] = testBinomialSample(nextInt(n));
-// 		r01[i] = testBinomialSample(nextInt(n));
-// 		r02[i] = testBinomialSample(nextInt(n));
-// 		e100[i] = testBinomialSample(nextInt(n));
-// 		e101[i] = testBinomialSample(nextInt(n));
-// 		e102[i] = testBinomialSample(nextInt(n));
-// 		e200[i] = testBinomialSample(nextInt(n));
-// 	}
-// 	ntt_r00 = NTT(r00, r00.length);
-// 	ntt_r01 = NTT(r01, r01.length);
-// 	ntt_r02 = NTT(r02, r02.length);
-// 	ntt_e100 = NTT(e100, e100.length);
-// 	ntt_e101 = NTT(e101, e101.length);
-// 	ntt_e102 = NTT(e102, e102.length);
-// 	ntt_e200 = NTT(e200, e200.length);
+		x1 = (nttR00[i] * nttB00[i]);
+		x2 = (nttR01[i] * nttB01[i]);
+		x3 = (nttR02[i] * nttB02[i]);
+		nttC200[i] = (x1 + x2 + x3 + nttE200[i] + nttM3841[i]) % q;
+	}
 
-// 	ntt_b00 = NTT(temp_b00, temp_b00.length);
-// 	ntt_b01 = NTT(temp_b01, temp_b01.length);
-// 	ntt_b02 = NTT(temp_b02, temp_b02.length);
+  const tempC100
+    = utils.INTT(Algorithm.KYBER, nttC100, nttC100.length, KyberConfig.bitRev_psiInv_7681_256, q, KyberConfig.INVN);
+  const tempC101
+    = utils.INTT(Algorithm.KYBER, nttC101, nttC101.length, KyberConfig.bitRev_psiInv_7681_256, q, KyberConfig.INVN);
+  const tempC102
+    = utils.INTT(Algorithm.KYBER, nttC102, nttC102.length, KyberConfig.bitRev_psiInv_7681_256, q, KyberConfig.INVN);
+  const tempC200
+    = utils.INTT(Algorithm.KYBER, nttC200, nttC200.length, KyberConfig.bitRev_psiInv_7681_256, q, KyberConfig.INVN);
 
-// 	for (var i = 0; i < n; i++) {
-// 		// Component multiply; point-wise multiplication
-// 		var x1 = (ntt_r00[i] * ntt_a00[i]);
-// 		var x2 = (ntt_r01[i] * ntt_a10[i]);
-// 		var x3 = (ntt_r02[i] * ntt_a20[i]);
-// 		ntt_c100[i] = (x1 + x2 + x3 + ntt_e100[i]) % q;
+	const c100 = compress2d(2048, q, tempC100);
+	const c101 = compress2d(2048, q, tempC101);
+	const c102 = compress2d(2048, q, tempC102);
+  const c200 = compress2d(8, q, tempC200);
+  
+  return {
+    c100,
+    c101,
+    c102,
+    c200
+  };
+}
 
-// 		x1 = (ntt_r00[i] * ntt_a01[i]);
-// 		x2 = (ntt_r01[i] * ntt_a11[i]);
-// 		x3 = (ntt_r02[i] * ntt_a21[i]);
-// 		ntt_c101[i] = (x1 + x2 + x3 + ntt_e101[i]) % q;
+function decrypt(c100: number[], c101: number[], c102: number[], c200: number[], nttS00: number[],
+  nttS01: number[], nttS02: number[]): number[] {
+	const tempC100 = decompress2d(2048, q, c100);
+	const tempC101 = decompress2d(2048, q, c101);
+	const tempC102 = decompress2d(2048, q, c102);
+	const tempC200 = decompress2d(8, q, c200);
 
-// 		x1 = (ntt_r00[i] * ntt_a02[i]);
-// 		x2 = (ntt_r01[i] * ntt_a12[i]);
-// 		x3 = (ntt_r02[i] * ntt_a22[i]);
-// 		ntt_c102[i] = (x1 + x2 + x3 + ntt_e102[i]) % q;
+	const nttC100 = utils.NTT(Algorithm.KYBER, tempC100, tempC100.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttC101 = utils.NTT(Algorithm.KYBER, tempC101, tempC101.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttC102 = utils.NTT(Algorithm.KYBER, tempC102, tempC102.length, KyberConfig.bitRev_psi_7681_256, q);
+	const nttC200 = utils.NTT(Algorithm.KYBER, tempC200, tempC200.length, KyberConfig.bitRev_psi_7681_256, q);
 
-// 		x1 = (ntt_r00[i] * ntt_b00[i]);
-// 		x2 = (ntt_r01[i] * ntt_b01[i]);
-// 		x3 = (ntt_r02[i] * ntt_b02[i]);
-// 		ntt_c200[i] = (x1 + x2 + x3 + ntt_e200[i] + ntt_m_3841[i]) % q;
-// 	}
-
-// 	var temp_c100 = INTT(ntt_c100, ntt_c100.length);
-// 	var temp_c101 = INTT(ntt_c101, ntt_c101.length);
-// 	var temp_c102 = INTT(ntt_c102, ntt_c102.length);
-// 	var temp_c200 = INTT(ntt_c200, ntt_c200.length);
-
-// 	c100 = compress2d(2048, q, temp_c100);
-// 	c101 = compress2d(2048, q, temp_c101);
-// 	c102 = compress2d(2048, q, temp_c102);
-// 	c200 = compress2d(8, q, temp_c200);
-// }
-
-// function decrypt() {
-// 	var temp_c100 = decompress2d(2048, q, c100);
-// 	var temp_c101 = decompress2d(2048, q, c101);
-// 	var temp_c102 = decompress2d(2048, q, c102);
-// 	var temp_c200 = decompress2d(8, q, c200);
-
-// 	ntt_c100 = NTT(temp_c100, temp_c100.length);
-// 	ntt_c101 = NTT(temp_c101, temp_c101.length);
-// 	ntt_c102 = NTT(temp_c102, temp_c102.length);
-// 	ntt_c200 = NTT(temp_c200, temp_c200.length);
-
-// 	for (var i = 0; i < n; i++) {
-// 		var x1 = (ntt_s00[i] * ntt_c100[i]);
-// 		var x2 = (ntt_s01[i] * ntt_c101[i]);
-// 		var x3 = (ntt_s02[i] * ntt_c102[i]);
-// 		// v = c2 - f
-// 		ntt_v00[i] = (ntt_c200[i] - (x1 + x2 + x3)) % q;
-// 		while (ntt_v00[i] < 0) {
-// 			ntt_v00[i] += q;
-// 		}
-// 	}
-// 	var temp_v00 = INTT(ntt_v00, ntt_v00.length);
-// 	v00 = compress2d(2, q, temp_v00);
-// }
-
-// var n = 256;
-// var k = 3;
-// var q = 7681;
-// var eta = 4;	// η = 4
-// var db = 11;
-// var dc1 = 11;
-// var dc2 = 3;
-
-// function testkyber() {
-// 	console.log("Test Kyber:");
-// 	console.log("Input:");
-// 	console.log("n = " + n);
-// 	console.log("k = " + k);
-// 	console.log("q = " + q);
-// 	console.log("η = " + eta);
-// 	console.log("db = " + db);
-// 	console.log("dc1 = " + dc1);
-// 	console.log("dc2 = " + dc2);
-// 	console.log("Output:");
-
-// 	// public key A
-// 	var a00 = new Array(n);
-// 	var a01 = new Array(n);
-// 	var a02 = new Array(n);
-// 	var a10 = new Array(n);
-// 	var a11 = new Array(n);
-// 	var a12 = new Array(n);
-// 	var a20 = new Array(n);
-// 	var a21 = new Array(n);
-// 	var a22 = new Array(n);
-
-// 	var plaintext_3841 = new Array(n);
-// 	for (var i = 0; i < n; i++) {
-// 		a00[i] = nextInt(q);
-// 		a01[i] = nextInt(q);
-// 		a02[i] = nextInt(q);
-// 		a10[i] = nextInt(q);
-// 		a11[i] = nextInt(q);
-// 		a12[i] = nextInt(q);
-// 		a20[i] = nextInt(q);
-// 		a21[i] = nextInt(q);
-// 		a22[i] = nextInt(q);
-// 		plaintext[i] = nextInt(2);
-// 		plaintext_3841[i] = plaintext[i] * 3841;
-// 	}
-// 	ntt_a00 = NTT(a00, a00.length);
-// 	ntt_a01 = NTT(a01, a01.length);
-// 	ntt_a02 = NTT(a02, a02.length);
-// 	ntt_a10 = NTT(a10, a10.length);
-// 	ntt_a11 = NTT(a11, a11.length);
-// 	ntt_a12 = NTT(a12, a12.length);
-// 	ntt_a20 = NTT(a20, a20.length);
-// 	ntt_a21 = NTT(a21, a21.length);
-// 	ntt_a22 = NTT(a22, a22.length);
-// 	ntt_m_3841 = NTT(plaintext_3841, plaintext_3841.length);
-
-// 	keyGeneration();
-// 	encrypt();
-// 	decrypt();
-
-// 	var km = plaintext.toString();
-// 	var kv = v00.toString();
-
-// 	console.log("plaintext: " + km);
-// 	console.log("result: " + kv);
-
-// 	if (km === kv) {
-// 		console.log("Success!");
-// 	} else {
-// 		console.log("Failed");
-// 	}
-// }
+  const nttV00 = new Array(n);
+	for (let i = 0; i < n; i++) {
+		const x1 = (nttS00[i] * nttC100[i]);
+		const x2 = (nttS01[i] * nttC101[i]);
+		const x3 = (nttS02[i] * nttC102[i]);
+    // v = c2 - f
+		nttV00[i] = (nttC200[i] - (x1 + x2 + x3)) % q;
+		while (nttV00[i] < 0) {
+			nttV00[i] += q;
+		}
+	}
+  const tempV00
+    = utils.INTT(Algorithm.KYBER, nttV00, nttV00.length, KyberConfig.bitRev_psiInv_7681_256, q, KyberConfig.INVN);
+  const v00 = compress2d(2, q, tempV00);
+  
+  return v00;
+}
