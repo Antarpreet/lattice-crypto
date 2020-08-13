@@ -2,51 +2,96 @@ import random from '../utils/prng';
 import { Algorithm, Action } from '../models/LatticeCrypto';
 
 export default class Utils {
-  // Returns a copy of the original array, truncated or padded with zeros to obtain the specified length
-  copyOf(arr1: number[], length: number): number[] {
-    const arr2 = new Array(length);
+  /**
+   * Returns a copy of the original array, truncated or padded with zeros to obtain the specified length
+   * input ([ 1, 2, 3, 4 ], 10)
+   * returns [ 1, 2, 3, 4, 0, 0, 0, 0, 0, 0 ]
+   *
+   * @param array1 the original array
+   * @param length the new length of the array to add
+   */
+  copyOf(array1: number[], length: number): number[] {
+    const array2 = new Array(length);
     for (let i = 0; i < length; i++) {
-      if (i >= arr1.length) {
-        arr2[i] = 0;
+      if (i >= array1.length) {
+        array2[i] = 0;
       } else {
-        arr2[i] = arr1[i];
+        array2[i] = array1[i];
       }
     }
-    return arr2;
+    return array2;
   }
 
-  // Returns a new array containing the specified range from the original array,
-  // truncated or padded with nulls to obtain the required length
-  copyOfRange(arr1: number[], from: number, to: number): number[] {
+  /**
+   * Returns a new array containing the specified range from the original array,
+   * truncated or padded with nulls to obtain the required length
+   * input ( [1,2,3,4], 2, 10 ) ;
+   * returns [ 3, 4, 0, 0, 0, 0, 0, 0 ]
+   *
+   * @param array1 the incoming 2 dimensional array
+   * @param from the index number to start at (0 based index)
+   * @param to the max value, will pad trailing zeros if longer.
+   */
+  copyOfRange(array1: number[], from: number, to: number): number[] {
     const length = to - from;
     // var arr2 = new Array(length);
     const arr2 = [];
     for (let i = 0; i < length; i++) {
-      if (i >= arr1.length || from >= arr1.length) {
+      if (i >= array1.length || from >= array1.length) {
         arr2[i] = 0;
       } else {
-        arr2[i] = arr1[from];
+        arr2[i] = array1[from];
       }
       from++;
     }
     return arr2;
   }
 
-  // Returns the next pseudorandom, uniformly distributed integer between 0(inclusive) and q-1(inclusive)
+  /**
+   * Returns the next pseudorandom, uniformly distributed integer between 0(inclusive) and q-1(inclusive)
+   * input (12289)
+   * returns a number between 0 and 12288
+   *
+   * @param q the max number to return from greater than zero
+   */
   nextInt(q: number): number {
     return Math.floor(random.randomGenerator() * q);
   }
 
-  // Returns the pseudorandom integer value between low(inclusive) and high(inclusive)
+  /**
+   * Returns the pseudorandom integer value between low(inclusive) and high(inclusive)
+   * input (3, 302848)
+   * returns returns a number between 3 and 302848
+   *
+   * @param low the lowest number in the range to return
+   * @param high the highest number in the range to return. (must be greater then the low number)
+   */
   rangeValue(low: number, high: number): number {
     return Math.floor(random.randomGenerator() * (high - low + 1) + low);
   }
 
-  // Shuffles the input array
-  shuffle(arr: number[]): number[] {
-    const arr2 = arr.slice();
-    for (let j, x, i = arr2.length; i; j = random.randomGenerator() * i, x = arr2[--i], arr2[i] = arr2[j], arr2[j] = x);
-    return arr2;
+  /**
+   * This randomly suffles the input array and creates a new array with the items randomly 
+   * TODO: this function doesn't provide the array as expected. 
+   * TODO: Accually sorts 
+   * input [3, 4, 6, 7]
+   * it reverses the array in theincoming format with the probabilty of it. 
+   *
+   * [ undefined,
+  undefined,
+  undefined,
+  undefined,
+  '3.2743575274944305': 7,
+  '0.8558525342959911': 6,
+  '1.7293115369975567': 4,
+  '0.4764410527423024': 3 ]
+   * @param array1 the array to change the order of
+   */
+  shuffle(array1: number[]): number[] {
+    const array2 = array1.slice();
+    console.log(array2);
+    for (let j, x, i = array2.length; i; j = random.randomGenerator() * i, x = array2[--i], array2[i] = array2[j], array2[j] = x);
+    return array2;
   }
 
   // Returns the bit of integer decimal_a at the index

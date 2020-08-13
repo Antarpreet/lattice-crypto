@@ -8,12 +8,12 @@ const utils = new Utils();
 export default class NewHope {}
 
 // ------------------------------------------- start newHope -------------------------------------------
-const n = 1024;
+const n = 1024; // the size of the 2 din=mensional array 
 const q = 12289;
 const k = 16;
 const MO = 4294967296; // 2^32
 
-const u: number[] = new Array(n);
+const u: number[] = new Array(n); // a n empty array.
 const BMATRIX = [
   [1, 0, 0, 0],
   [0, 1, 0, 0],
