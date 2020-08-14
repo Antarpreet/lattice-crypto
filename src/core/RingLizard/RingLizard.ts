@@ -1,9 +1,11 @@
 // https://github.com/FuKyuToTo/lattice-based-cryptography
 
-import Utils from '../../utils/utils';
 import random from '../../utils/prng';
+import NumberUtils from '../../utils/number-utils';
+import MatrixUtils from '../../utils/matrix-utils';
 
-const utils = new Utils();
+const matrixUtils = new MatrixUtils();
+const numberUtils = new NumberUtils();
 
 export default class RingLizard {}
 
@@ -22,10 +24,10 @@ function testRingLizard() {
 
   const m = [];
   for (let i = 0; i < n; i++) {
-    m[i] = utils.nextInt(2);
+    m[i] = numberUtils.nextInt(2);
   }
 
-  const _m = utils.copyOf(m, m.length);
+  const _m = matrixUtils.copyOf(m, m.length);
   // encode
   multiplyInt(_m, 128);
 
@@ -62,7 +64,7 @@ function testRejectionSampling(c: number, sigma: number): number {
   const xMax = Math.ceil(c + tau * sigma);
   const xMin = Math.floor(c - tau * sigma);
   while (true) {
-    const x = utils.rangeValue(xMin, xMax);
+    const x = numberUtils.rangeValue(xMin, xMax);
     const p = Math.exp(h * Math.sqrt(x - c));
     const r = random.randomGenerator();
     if (r < p) {
@@ -89,16 +91,16 @@ function karatsuba(a: number[], b: number[]): number[] {
     return c;
   } else {
     const n1 = n >> 1;
-    const a1 = utils.copyOf(a.slice(), n1);
-    const a2 = utils.copyOfRange(a.slice(), n1, n);
-    const b1 = utils.copyOf(b.slice(), n1);
-    const b2 = utils.copyOfRange(b.slice(), n1, n);
+    const a1 = matrixUtils.copyOf(a.slice(), n1);
+    const a2 = matrixUtils.copyOfRange(a.slice(), n1, n);
+    const b1 = matrixUtils.copyOf(b.slice(), n1);
+    const b2 = matrixUtils.copyOfRange(b.slice(), n1, n);
 
     // make a copy of a1 that is the same length as a2
-    const A = utils.copyOf(a1.slice(), a2.length);
+    const A = matrixUtils.copyOf(a1.slice(), a2.length);
     addIntPoly(A, a2);
     // make a copy of b1 that is the same length as b2
-    const B = utils.copyOf(b1.slice(), b2.length);
+    const B = matrixUtils.copyOf(b1.slice(), b2.length);
     addIntPoly(B, b2);
 
     const c1 = karatsuba(a1, b1);
@@ -169,11 +171,11 @@ function keyGeneration(n: number, q: number, sigma: number): { pka: number[]; pk
   }
 
   for (let i = 0; i < n; i++) {
-    a[i] = utils.nextInt(q);
+    a[i] = numberUtils.nextInt(q);
   }
 
   pka = a;
-  s = utils.shuffle(arrS);
+  s = matrixUtils.shuffle(arrS);
   sks = s;
   b = multiplySubModPoly(a, s, e, q);
   pkb = b;
@@ -199,7 +201,7 @@ function multiplySubModPoly(a: number[], s: number[], e: number[], modulus: numb
       c[k - N] += c[k];
       // alert("c[k-N]:" + c[k-N]);
     }
-    b = utils.copyOf(c, N);
+    b = matrixUtils.copyOf(c, N);
   }
 
   for (let i = 0; i < b.length; i++) {
@@ -233,7 +235,7 @@ function encrypt(n: number, _m: number[], pka: number[], pkb: number[]): { cpc1:
     arrR[i] = 0;
   }
 
-  const r = utils.shuffle(arrR);
+  const r = matrixUtils.shuffle(arrR);
   const c1 = multiplyModPolyC1(a, r, 0.25, 256);
   const c2 = multiplyAddModPolyC2(b, r, _m, 0.25, 256);
 
@@ -260,7 +262,7 @@ function multiplyModPolyC1(a: number[], r: number[], f: number, modulus: number)
       c[k - N] += c[k];
       // alert("c[k-N]:" + c[k-N]);
     }
-    c1 = utils.copyOf(c, N);
+    c1 = matrixUtils.copyOf(c, N);
   }
 
   for (let i = 0; i < c1.length; i++) {
@@ -293,7 +295,7 @@ function multiplyAddModPolyC2(b: number[], r: number[], _m: number[], f: number,
       c[k - N] += c[k];
       // alert("c[k-N]:" + c[k-N]);
     }
-    c2 = utils.copyOf(c, N);
+    c2 = matrixUtils.copyOf(c, N);
   }
 
   for (let i = 0; i < c2.length; i++) {
@@ -336,7 +338,7 @@ function multiplyAddModPolyResult(c1: number[], s: number[], c2: number[], f: nu
       c[k - N] += c[k];
       // alert("c[k-N]:" + c[k-N]);
     }
-    res = utils.copyOf(c, N);
+    res = matrixUtils.copyOf(c, N);
   }
 
   for (let i = 0; i < res.length; i++) {

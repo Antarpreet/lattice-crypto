@@ -1,8 +1,8 @@
-import Utils from '../../utils/utils';
 import { Algorithm } from '../../models/LatticeCrypto';
 import { Frodo as FrodoConfig } from './config';
+import MatrixUtils from '../../utils/matrix-utils';
 
-const utils = new Utils();
+const matrixUtils = new MatrixUtils();
 
 export default class Frodo {}
 
@@ -71,12 +71,12 @@ function rec(b1s: number[][], mm: number, ll: number, aa: number, h: number[][])
 
 function alice0(nn: number, qq: number): { am: number[][]; bm: number[][]; sm: number[][] } {
   // A, n*n
-  const aMatrix = utils.initMatrixRandom(nn, nn, qq);
+  const aMatrix = matrixUtils.initMatrixRandom(nn, nn, qq);
   const sMatrix = FrodoConfig.ss; // n*l
   const eMatrix = FrodoConfig.ee; // n*l
   // B = AS + E mod q, n*l
-  let bMatrix = utils.multiply(Algorithm.FRODO, aMatrix, sMatrix);
-  bMatrix = utils.addMod(bMatrix, eMatrix, qq);
+  let bMatrix = matrixUtils.multiply(Algorithm.FRODO, aMatrix, sMatrix);
+  bMatrix = matrixUtils.addMod(bMatrix, eMatrix, qq);
 
   const am = aMatrix;
   const bm = bMatrix;
@@ -98,11 +98,11 @@ function bob(ll: number, mm: number, qq: number, am: number[][], bm: number[][])
   const e1Matrix = FrodoConfig.ee1; // Z^m*n
   const e2Matrix = FrodoConfig.ee2; // Z^m*l
 
-  let b1Matrix = utils.multiply(Algorithm.FRODO, s1Matrix, aMatrix);
-  let vMatrix = utils.multiply(Algorithm.FRODO, s1Matrix, bMatrix);
+  let b1Matrix = matrixUtils.multiply(Algorithm.FRODO, s1Matrix, aMatrix);
+  let vMatrix = matrixUtils.multiply(Algorithm.FRODO, s1Matrix, bMatrix);
 
-  b1Matrix = utils.addMod(b1Matrix, e1Matrix, qq); // Z^m*n
-  vMatrix = utils.addMod(vMatrix, e2Matrix, qq); // Z^m*l
+  b1Matrix = matrixUtils.addMod(b1Matrix, e1Matrix, qq); // Z^m*n
+  vMatrix = matrixUtils.addMod(vMatrix, e2Matrix, qq); // Z^m*l
   const cMatrix: number[][] = new Array(mm); // Z^m*l
 
   for (let i = 0; i < ll; i++) {
@@ -135,7 +135,7 @@ function alice1(ll: number, mm: number, qq: number, bb: number[][], cc: number[]
   const cm = cc;
   const sMatrix = sm;
 
-  const b1s = utils.multiplyMod(Algorithm.FRODO, b1m, sMatrix, qq); // Z^m*l
+  const b1s = matrixUtils.multiplyMod(Algorithm.FRODO, b1m, sMatrix, qq); // Z^m*l
   const k2Matrix = b1s; // Z^m*l
   rec(k2Matrix, mm, ll, 11, cm);
   return k2Matrix;

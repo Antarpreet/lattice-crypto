@@ -1,7 +1,9 @@
-import random from '../utils/prng';
+import random from './prng';
 import { Algorithm, Action } from '../models/LatticeCrypto';
+import NumberUtils from './number-utils';
+const numberUtils = new NumberUtils();
 
-export default class Utils {
+export default class MatrixUtils {
   /**
    * Returns a copy of the original array, truncated or padded with zeros to obtain the specified length
    * input ([ 1, 2, 3, 4 ], 10)
@@ -46,30 +48,6 @@ export default class Utils {
     }
     return arr2;
   }
-
-  /**
-   * Returns the next pseudorandom, uniformly distributed integer between 0(inclusive) and q-1(inclusive)
-   * input (12289)
-   * returns a number between 0 and 12288
-   *
-   * @param q the max number to return from greater than zero
-   */
-  nextInt(q: number): number {
-    return Math.floor(random.randomGenerator() * q);
-  }
-
-  /**
-   * Returns the pseudorandom integer value between low(inclusive) and high(inclusive)
-   * input (3, 302848)
-   * returns returns a number between 3 and 302848
-   *
-   * @param low the lowest number in the range to return
-   * @param high the highest number in the range to return. (must be greater then the low number)
-   */
-  rangeValue(low: number, high: number): number {
-    return Math.floor(random.randomGenerator() * (high - low + 1) + low);
-  }
-
   /**
    * This randomly suffles the input array and creates a new array with the items randomly 
    * TODO: this function doesn't provide the array as expected. 
@@ -78,13 +56,13 @@ export default class Utils {
    * it reverses the array in theincoming format with the probabilty of it. 
    *
    * [ undefined,
-  undefined,
-  undefined,
-  undefined,
-  '3.2743575274944305': 7,
-  '0.8558525342959911': 6,
-  '1.7293115369975567': 4,
-  '0.4764410527423024': 3 ]
+   * undefined,
+   * undefined,
+   * undefined,
+   * '3.2743575274944305': 7,
+   * '0.8558525342959911': 6,
+   * '1.7293115369975567': 4,
+   * '0.4764410527423024': 3 ]
    * @param array1 the array to change the order of
    */
   shuffle(array1: number[]): number[] {
@@ -92,108 +70,6 @@ export default class Utils {
     console.log(array2);
     for (let j, x, i = array2.length; i; j = random.randomGenerator() * i, x = array2[--i], array2[i] = array2[j], array2[j] = x);
     return array2;
-  }
-
-  // Returns the bit of integer decimal_a at the index
-  getBit(decimal: number, index: number): number {
-    return (decimal >> index) & 1;
-  }
-
-  // Kyber
-  // utils.INTT('kyber', A, n, bitRev_psiInv_7681_256, q, INVN);
-
-  // NewHope
-  // utils.INTT('newHope', A, n, bitRev_psiInv_12289_1024, q, INVN);
-
-  // Gentleman-Sande (GS) inverse number theoretic transform
-  INTT(algorithm: Algorithm, A: number[], n: number, bitRevPsiInv: number[], q: number, INVN: number): number[] {
-    const NTT_A_COEFF: number[] = this.copyOf(A.slice(), n);
-    let t = 1;
-    for (let m = n; m > 1; m >>= 1) {
-      let j1 = 0;
-      const h = m >> 1;
-      for (let i = 0; i < h; i++) {
-        const j2 = j1 + t - 1;
-        const S = bitRevPsiInv[h + i];
-        for (let j = j1; j <= j2; j++) {
-          const U = NTT_A_COEFF[j];
-          const V = NTT_A_COEFF[j + t];
-          NTT_A_COEFF[j] = (U + V) % q;
-          let temp = U - V;
-
-          switch (algorithm) {
-            case Algorithm.KYBER:
-              while (NTT_A_COEFF[j] < 0) {
-                NTT_A_COEFF[j] = NTT_A_COEFF[j] + q;
-              }
-
-              while (temp < 0) {
-                temp += q;
-              }
-              break;
-            case Algorithm.NEW_HOPE:
-              if (temp < 0) {
-                temp += q;
-              }
-              break;
-            default:
-              break;
-          }
-          NTT_A_COEFF[j + t] = (temp * S) % q;
-        }
-        j1 = j1 + (t << 1);
-      }
-      t <<= 1;
-    }
-    for (let j = 0; j < n; j++) {
-      NTT_A_COEFF[j] = (NTT_A_COEFF[j] * INVN) % q;
-    }
-    return NTT_A_COEFF;
-  }
-
-  // Kyber
-  // utils.NTT('kyber', A, n, bitRev_psi_7681_256, q);
-
-  // NewHope
-  // utils.NTT('newHope', A, n, bitRev_psi_12289_1024, q);
-
-  // Cooley-Tukey(CT) forward number theoretic transform
-  NTT(algorithm: Algorithm, A: number[], n: number, bitRevPsi: number[], q: number): number[] {
-    const NTT_A_COEFF: number[] = this.copyOf(A.slice(), n);
-    let t = n;
-    for (let m = 1; m < n; m <<= 1) {
-      t >>= 1;
-      for (let i = 0; i < m; i++) {
-        const j1 = (i << 1) * t;
-        const j2 = j1 + t - 1;
-        const S = bitRevPsi[m + i];
-        for (let j = j1; j <= j2; j++) {
-          const U = NTT_A_COEFF[j];
-          const V = NTT_A_COEFF[j + t] * S;
-          NTT_A_COEFF[j] = (U + V) % q;
-          switch (algorithm) {
-            case Algorithm.KYBER:
-              while (NTT_A_COEFF[j] < 0) {
-                NTT_A_COEFF[j] = NTT_A_COEFF[j] + q;
-              }
-              NTT_A_COEFF[j + t] = (U - V) % q;
-              while (NTT_A_COEFF[j + t] < 0) {
-                NTT_A_COEFF[j + t] = NTT_A_COEFF[j + t] + q;
-              }
-              break;
-            case Algorithm.NEW_HOPE:
-              NTT_A_COEFF[j + t] = (U - V) % q;
-              if (NTT_A_COEFF[j + t] < 0) {
-                NTT_A_COEFF[j + t] = NTT_A_COEFF[j + t] + q;
-              }
-              break;
-            default:
-              break;
-          }
-        }
-      }
-    }
-    return NTT_A_COEFF;
   }
 
   initMatrixDefault(x: number, y: number): number[][] {
@@ -209,12 +85,11 @@ export default class Utils {
     for (let i = 0; i < x; i++) {
       matrix[i] = new Array(y);
       for (let j = 0; j < y; j++) {
-        matrix[i][j] = this.nextInt(q);
+        matrix[i][j] = numberUtils.nextInt(q);
       }
     }
     return matrix;
   }
-
   // Returns A', the transpose of a matrix A
   transpose(A: number[][]): number[][] {
     const Ax = A.length;
@@ -480,5 +355,22 @@ export default class Utils {
     } else {
       return true;
     }
+  }
+
+  // Multiply a matrix B by a vector a, c = a * B
+  vector_multiply_matrix(a: number[], B: number[][], BColumnSize: number): number[] {
+    // Matrix inner dimensions must agree
+    const c = new Array(BColumnSize);
+    for (let j = 0; j < BColumnSize; j++) {
+      c[j] = 0;
+    }
+
+    for (let i = 0; i < a.length; i++) {
+      const BRowI = B[i];
+      for (let j = 0; j < BColumnSize; j++) {
+        c[j] += BRowI[j] * a[i];
+      }
+    }
+    return c;
   }
 }

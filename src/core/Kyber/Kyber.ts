@@ -1,10 +1,16 @@
 // https://github.com/FuKyuToTo/lattice-based-cryptography
 
-import Utils from '../../utils/utils';
 import { Algorithm } from '../../models/LatticeCrypto';
 import { Kyber as KyberConfig } from './config';
+import LatticeUtils from '../../utils/lattice-utils';
+import NumberUtils from '../../utils/number-utils';
+import MatrixUtils from '../../utils/matrix-utils';
+import BitUtils from '../../utils/bit-utils';
 
-const utils = new Utils();
+const matrixUtils = new MatrixUtils();
+const numberUtils = new NumberUtils();
+const bitUtils = new BitUtils();
+const utils = new LatticeUtils();
 
 export default class Kyber {}
 
@@ -42,16 +48,16 @@ function testKyber() {
 
   const plainText3841 = new Array(n);
   for (let i = 0; i < n; i++) {
-    a00[i] = utils.nextInt(q);
-    a01[i] = utils.nextInt(q);
-    a02[i] = utils.nextInt(q);
-    a10[i] = utils.nextInt(q);
-    a11[i] = utils.nextInt(q);
-    a12[i] = utils.nextInt(q);
-    a20[i] = utils.nextInt(q);
-    a21[i] = utils.nextInt(q);
-    a22[i] = utils.nextInt(q);
-    plainText[i] = utils.nextInt(2);
+    a00[i] = numberUtils.nextInt(q);
+    a01[i] = numberUtils.nextInt(q);
+    a02[i] = numberUtils.nextInt(q);
+    a10[i] = numberUtils.nextInt(q);
+    a11[i] = numberUtils.nextInt(q);
+    a12[i] = numberUtils.nextInt(q);
+    a20[i] = numberUtils.nextInt(q);
+    a21[i] = numberUtils.nextInt(q);
+    a22[i] = numberUtils.nextInt(q);
+    plainText[i] = numberUtils.nextInt(2);
     plainText3841[i] = plainText[i] * 3841;
   }
   const nttA00 = utils.NTT(Algorithm.KYBER, a00, a00.length, KyberConfig.bitRev_psi_7681_256, q);
@@ -104,7 +110,7 @@ function compress2d(modulus: number, qq: number, v: number[]): number[] {
     return [];
   }
 
-  const vector: number[] = utils.copyOf(v.slice(), v.length);
+  const vector: number[] = matrixUtils.copyOf(v.slice(), v.length);
   for (let j = 0; j < n; j++) {
     vector[j] = Math.round((vector[j] * 1.0 * modulus) / qq);
     if (modulus === 2048) {
@@ -122,7 +128,7 @@ function compress2d(modulus: number, qq: number, v: number[]): number[] {
 }
 
 function decompress2d(pow2d: number, qq: number, v: number[]): number[] {
-  const vector: number[] = utils.copyOf(v.slice(), v.length);
+  const vector: number[] = matrixUtils.copyOf(v.slice(), v.length);
   for (let j = 0; j < n; j++) {
     vector[j] = Math.round((vector[j] * 1.0 * qq) / pow2d);
   }
@@ -133,11 +139,11 @@ function decompress2d(pow2d: number, qq: number, v: number[]): number[] {
 function testBinomialSample(value: number): number {
   let sum = 0;
   sum =
-    utils.getBit(value, 0) -
-    utils.getBit(value, 4) +
-    (utils.getBit(value, 1) - utils.getBit(value, 5)) +
-    (utils.getBit(value, 2) - utils.getBit(value, 6)) +
-    (utils.getBit(value, 3) - utils.getBit(value, 7));
+    bitUtils.getBit(value, 0) -
+    bitUtils.getBit(value, 4) +
+    (bitUtils.getBit(value, 1) - bitUtils.getBit(value, 5)) +
+    (bitUtils.getBit(value, 2) - bitUtils.getBit(value, 6)) +
+    (bitUtils.getBit(value, 3) - bitUtils.getBit(value, 7));
   return sum;
 }
 
@@ -163,12 +169,12 @@ function keyGeneration(
   const nttB02 = new Array(n);
 
   for (let i = 0; i < n; i++) {
-    s00[i] = testBinomialSample(utils.nextInt(n));
-    s01[i] = testBinomialSample(utils.nextInt(n));
-    s02[i] = testBinomialSample(utils.nextInt(n));
-    e00[i] = testBinomialSample(utils.nextInt(n));
-    e01[i] = testBinomialSample(utils.nextInt(n));
-    e02[i] = testBinomialSample(utils.nextInt(n));
+    s00[i] = testBinomialSample(numberUtils.nextInt(n));
+    s01[i] = testBinomialSample(numberUtils.nextInt(n));
+    s02[i] = testBinomialSample(numberUtils.nextInt(n));
+    e00[i] = testBinomialSample(numberUtils.nextInt(n));
+    e01[i] = testBinomialSample(numberUtils.nextInt(n));
+    e02[i] = testBinomialSample(numberUtils.nextInt(n));
   }
   const nttS00 = utils.NTT(Algorithm.KYBER, s00, s00.length, KyberConfig.bitRev_psi_7681_256, q);
   const nttS01 = utils.NTT(Algorithm.KYBER, s01, s01.length, KyberConfig.bitRev_psi_7681_256, q);
@@ -243,13 +249,13 @@ function encrypt(
   const nttC200 = new Array(n);
 
   for (let i = 0; i < n; i++) {
-    r00[i] = testBinomialSample(utils.nextInt(n));
-    r01[i] = testBinomialSample(utils.nextInt(n));
-    r02[i] = testBinomialSample(utils.nextInt(n));
-    e100[i] = testBinomialSample(utils.nextInt(n));
-    e101[i] = testBinomialSample(utils.nextInt(n));
-    e102[i] = testBinomialSample(utils.nextInt(n));
-    e200[i] = testBinomialSample(utils.nextInt(n));
+    r00[i] = testBinomialSample(numberUtils.nextInt(n));
+    r01[i] = testBinomialSample(numberUtils.nextInt(n));
+    r02[i] = testBinomialSample(numberUtils.nextInt(n));
+    e100[i] = testBinomialSample(numberUtils.nextInt(n));
+    e101[i] = testBinomialSample(numberUtils.nextInt(n));
+    e102[i] = testBinomialSample(numberUtils.nextInt(n));
+    e200[i] = testBinomialSample(numberUtils.nextInt(n));
   }
   const nttR00 = utils.NTT(Algorithm.KYBER, r00, r00.length, KyberConfig.bitRev_psi_7681_256, q);
   const nttR01 = utils.NTT(Algorithm.KYBER, r01, r01.length, KyberConfig.bitRev_psi_7681_256, q);
