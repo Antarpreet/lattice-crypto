@@ -49,11 +49,11 @@ export default class MatrixUtils {
     return arr2;
   }
   /**
-   * This randomly suffles the input array and creates a new array with the items randomly 
-   * TODO: this function doesn't provide the array as expected. 
-   * TODO: Accually sorts 
+   * This randomly suffles the input array and creates a new array with the items randomly
+   * TODO: this function doesn't provide the array as expected.
+   * TODO: Accually sorts
    * input [3, 4, 6, 7]
-   * it reverses the array in theincoming format with the probabilty of it. 
+   * it reverses the array in theincoming format with the probabilty of it.
    *
    * [ undefined,
    * undefined,
