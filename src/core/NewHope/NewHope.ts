@@ -9,12 +9,11 @@ const numberUtils = new NumberUtils();
 const newHopeUtils = new NewHopeUtils();
 
 const utils = new LatticeUtils();
-const n = 1024; // the size of the 2 din=mensional array
+const n = 1024; // the size of the 2 dimensional array
 const q = 12289; // the modules
 const k = 16;
 const MO = 4294967296; // 2^32
 
-const u: number[] = new Array(n); // a n empty array.
 const BMATRIX = [
   [1, 0, 0, 0],
   [0, 1, 0, 0],
@@ -30,6 +29,11 @@ export default class NewHope {
   private _errorDistribution!: number[];
   private _bit!: number;
 
+  /**
+   *  key size = (arrayLength * arrayMemberLength) + delimiterCount
+   *  min key size = 1024 * 1 + 1023 = 2047 Bytes
+   *  max key size = 1024 * 5 + 1023 = 6143 Bytes
+   */
   generateKeyPair(): void {
     if (!this._sharedRandomness) {
       this.generateSharedRandomness();

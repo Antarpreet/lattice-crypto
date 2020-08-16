@@ -8,8 +8,8 @@ We are changing this to be database storable and will become generic.
 
 (Generic)
 New Hope Key Exchange:
-
-  ```const newHopeAlice = new NewHope();
+```
+  const newHopeAlice = new NewHope();
   newHopeAlice.generateKeyPair();
   const sharedRandomness = newHopeAlice.sharedRandomness;
 
@@ -30,4 +30,5 @@ New Hope Key Exchange:
     console.log('Success!');
   } else {
     console.log('Failed');
-  } ```
+  }
+``` 
