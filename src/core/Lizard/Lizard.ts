@@ -34,17 +34,11 @@ export default class Lizard {
     return this._sharedRandomness;
   }
 
-  generateErrorDistribution() {
+  generateErrorDistribution() {}
 
-  }
+  generateSharedSecret(otherPublicKey: number[]) {}
 
-  generateSharedSecret(otherPublicKey: number[]) {
-
-  }
-
-  generateVector(otherPublicKey: number[]) {
-
-  }
+  generateVector(otherPublicKey: number[]) {}
 
   get vector() {
     return this._vector;

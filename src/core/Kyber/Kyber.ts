@@ -32,12 +32,8 @@ export default class Kyber {
       this.generateErrorDistribution();
     }
 
-    const privateKeyInit: number[][][] = [
-      [Array(n), Array(n), Array(n)]
-    ];
-    const privateKey: number[][][] = [
-      new Array(3)
-    ];
+    const privateKeyInit: number[][][] = [[Array(n), Array(n), Array(n)]];
+    const privateKey: number[][][] = [new Array(3)];
 
     for (let i = 0; i < n; i++) {
       for (let row = 0; row < privateKeyInit.length; row++) {
@@ -49,9 +45,13 @@ export default class Kyber {
     for (let i = 0; i < n; i++) {
       for (let row = 0; row < privateKey.length; row++) {
         for (let column = 0; column < privateKey[row].length; column++) {
-          privateKey[row][column] =
-            utils.NTT(Algorithm.KYBER, privateKeyInit[row][column], privateKeyInit[row][column].length,
-              KyberConfig.bitRev_psi_7681_256, q);
+          privateKey[row][column] = utils.NTT(
+            Algorithm.KYBER,
+            privateKeyInit[row][column],
+            privateKeyInit[row][column].length,
+            KyberConfig.bitRev_psi_7681_256,
+            q,
+          );
         }
       }
     }
@@ -61,9 +61,7 @@ export default class Kyber {
   }
 
   generatePublicKey(): number[][][] {
-    const someKey: number[][][] = [
-      [Array(n), Array(n), Array(n)]
-    ];
+    const someKey: number[][][] = [[Array(n), Array(n), Array(n)]];
 
     let x1 = 0;
     let x2 = 0;
@@ -85,25 +83,25 @@ export default class Kyber {
       someKey[0][2][i] = (x1 + x2 + x3 + this._errorDistribution[0][2][i]) % q;
     }
 
-    const temp: number[][][] = [
-      new Array(3)
-    ];
+    const temp: number[][][] = [new Array(3)];
 
     for (let row = 0; row < temp.length; row++) {
       for (let column = 0; column < temp[row].length; column++) {
-        temp[row][column] =
-          utils.INTT(Algorithm.KYBER, someKey[row][column], someKey[row][column].length,
-            KyberConfig.bitRev_psiInv_7681_256, q, KyberConfig.INVN);
+        temp[row][column] = utils.INTT(
+          Algorithm.KYBER,
+          someKey[row][column],
+          someKey[row][column].length,
+          KyberConfig.bitRev_psiInv_7681_256,
+          q,
+          KyberConfig.INVN,
+        );
       }
     }
 
-    const publicKey: number[][][] = [
-      new Array(3)
-    ];
+    const publicKey: number[][][] = [new Array(3)];
     for (let row = 0; row < temp.length; row++) {
       for (let column = 0; column < temp[row].length; column++) {
-        publicKey[row][column] =
-          kyberUtils.compress2d(2048, q, temp[row][column], n);
+        publicKey[row][column] = kyberUtils.compress2d(2048, q, temp[row][column], n);
       }
     }
 
@@ -114,13 +112,9 @@ export default class Kyber {
     const sharedRandomnessInit: number[][][] = [
       [Array(n), Array(n), Array(n)],
       [Array(n), Array(n), Array(n)],
-      [Array(n), Array(n), Array(n)]
+      [Array(n), Array(n), Array(n)],
     ];
-    const sharedRandomness: number[][][] = [
-      new Array(3),
-      new Array(3),
-      new Array(3)
-    ];
+    const sharedRandomness: number[][][] = [new Array(3), new Array(3), new Array(3)];
 
     for (let i = 0; i < n; i++) {
       for (const row of sharedRandomnessInit) {
@@ -132,9 +126,13 @@ export default class Kyber {
 
     for (let row = 0; row < sharedRandomness.length; row++) {
       for (let column = 0; column < sharedRandomness[row].length; column++) {
-        sharedRandomness[row][column] =
-          utils.NTT(Algorithm.KYBER, sharedRandomnessInit[row][column], sharedRandomnessInit[row][column].length,
-            KyberConfig.bitRev_psi_7681_256, q);
+        sharedRandomness[row][column] = utils.NTT(
+          Algorithm.KYBER,
+          sharedRandomnessInit[row][column],
+          sharedRandomnessInit[row][column].length,
+          KyberConfig.bitRev_psi_7681_256,
+          q,
+        );
       }
     }
 
@@ -143,12 +141,8 @@ export default class Kyber {
   }
 
   generateErrorDistribution(): number[][][] {
-    const errorDistributionInit: number[][][] = [
-      [Array(n), Array(n), Array(n)]
-    ];
-    const errorDistribution: number[][][] = [
-      new Array(3)
-    ];
+    const errorDistributionInit: number[][][] = [[Array(n), Array(n), Array(n)]];
+    const errorDistribution: number[][][] = [new Array(3)];
 
     for (let i = 0; i < n; i++) {
       for (let row = 0; row < errorDistributionInit.length; row++) {
@@ -160,9 +154,13 @@ export default class Kyber {
     for (let i = 0; i < n; i++) {
       for (let row = 0; row < errorDistribution.length; row++) {
         for (let column = 0; column < errorDistribution[row].length; column++) {
-          errorDistribution[row][column] =
-            utils.NTT(Algorithm.KYBER, errorDistributionInit[row][column], errorDistributionInit[row][column].length,
-              KyberConfig.bitRev_psi_7681_256, q);
+          errorDistribution[row][column] = utils.NTT(
+            Algorithm.KYBER,
+            errorDistributionInit[row][column],
+            errorDistributionInit[row][column].length,
+            KyberConfig.bitRev_psi_7681_256,
+            q,
+          );
         }
       }
     }
@@ -170,13 +168,9 @@ export default class Kyber {
     return this._errorDistribution;
   }
 
-  generateSharedSecret(otherPublicKey: number[]) {
+  generateSharedSecret(otherPublicKey: number[]) {}
 
-  }
-
-  generateVector(otherPublicKey: number[]) {
-
-  }
+  generateVector(otherPublicKey: number[]) {}
 
   get vector() {
     return this._vector;
@@ -203,7 +197,6 @@ export default class Kyber {
     this._sharedRandomness = sharedRandomness;
   }
 }
-
 
 function testKyber() {
   console.log('Test Kyber:');

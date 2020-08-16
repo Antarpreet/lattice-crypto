@@ -32,17 +32,11 @@ export default class Frodo {
     return this._sharedRandomness;
   }
 
-  generateErrorDistribution() {
+  generateErrorDistribution() {}
 
-  }
+  generateSharedSecret(otherPublicKey: number[]) {}
 
-  generateSharedSecret(otherPublicKey: number[]) {
-
-  }
-
-  generateVector(otherPublicKey: number[]) {
-
-  }
+  generateVector(otherPublicKey: number[]) {}
 
   get vector() {
     return this._vector;
@@ -125,26 +119,32 @@ function testFrodo() {
 
 testFrodo();
 
-function bob(ll: number, mm: number, qq: number, publicKeyA: number[][], privateKeyB: number[][]): { cipherText: number[][]; sharedSecretB: number[][] } {
-  const sharedSecretB: number[][] = new Array(mm); // V, Z^m*l
+function bob(
+  l: number,
+  m: number,
+  q: number,
+  publicKeyA: number[][],
+  privateKeyB: number[][],
+): { cipherText: number[][]; sharedSecretB: number[][] } {
+  const sharedSecretB: number[][] = new Array(m); // V, Z^m*l
 
   const errorDistributionC = FrodoConfig.ee2; // Z^m*l
-  
-  let vector = matrixUtils.multiply(Algorithm.FRODO, privateKeyB, publicKeyA);
-  vector = matrixUtils.addMod(vector, errorDistributionC, qq); // Z^m*l
-  const cipherText: number[][] = new Array(mm); // Z^m*l
 
-  for (let i = 0; i < ll; i++) {
+  let vector = matrixUtils.multiply(Algorithm.FRODO, privateKeyB, publicKeyA);
+  vector = matrixUtils.addMod(vector, errorDistributionC, q); // Z^m*l
+  const cipherText: number[][] = new Array(m); // Z^m*l
+
+  for (let i = 0; i < l; i++) {
     cipherText[i] = vector[i].slice();
     sharedSecretB[i] = vector[i].slice();
   }
 
   for (let i = 0; i < m; i++) {
-    for (let j = 0; j < ll; j++) {
+    for (let j = 0; j < l; j++) {
       cipherText[i][j] = (cipherText[i][j] >> 10) & 1; // >> logQ - b - 1
       // cipherText[i][j] = Math.floor(cipherText[i][j] * 0.0009765625) % 2;
 
-      sharedSecretB[i][j] = (sharedSecretB[i][j] + 1024) % qq;
+      sharedSecretB[i][j] = (sharedSecretB[i][j] + 1024) % q;
       sharedSecretB[i][j] >>= 11; // >>= logQ - b
       // k1Matrix[i][j] = Math.round(k1Matrix[i][j] * 0.00048828125) % 16;
     }
