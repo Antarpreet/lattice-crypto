@@ -4,6 +4,7 @@ import { Algorithm } from '../../models/LatticeCrypto';
 import { NewHope as NewHopeConfig } from './config';
 import NumberUtils from '../../utils/number-utils';
 import NewHopeUtils from './Utils/new-hope-utils';
+import { Encoding } from '../../models/enums';
 
 const numberUtils = new NumberUtils();
 const newHopeUtils = new NewHopeUtils();
@@ -64,7 +65,10 @@ export default class NewHope {
 
     return publicKey;
   }
-
+  /**
+   * This is a uniquely random sample from a ring. This should not be reused between sessions since reusing it
+   * with different vectors allows for this to be comprimised.
+   */
   generateSharedRandomness(): number[] {
     const arrA = new Array(n);
     for (let j = 0; j < n; j++) {
@@ -86,7 +90,7 @@ export default class NewHope {
     return this._errorDistribution;
   }
 
-  generateSharedSecret(otherPublicKey: number[]) {
+  generateSharedSecret(otherPublicKey: number[], encoding: Encoding): number[] | string {
     if (!this._vector) {
       this.generateVector(otherPublicKey);
     }
@@ -100,7 +104,11 @@ export default class NewHope {
     return newHopeUtils.rec(v1, this._vector, BMATRIX, q);
   }
 
-  generateVector(otherPublicKey: number[]) {
+  /**
+   * This generates a vector between 
+   * @param otherPublicKey 
+   */
+  generateVector(otherPublicKey: number[]): void {
     if (!this._errorDistribution) {
       this.generateErrorDistribution();
     }
@@ -174,10 +182,10 @@ function testNewHope() {
   newHopeBob.sharedRandomness = sharedRandomness;
   newHopeBob.generateKeyPair();
   // newHopeBob.vector = errorDistribution;
-  const aliceShared = newHopeAlice.generateSharedSecret(newHopeBob.publicKey);
+  const aliceShared = newHopeAlice.generateSharedSecret(newHopeBob.publicKey, Encoding.MATRIX);
   newHopeBob.vector = newHopeAlice.vector;
 
-  const bobShared = newHopeBob.generateSharedSecret(newHopeAlice.publicKey);
+  const bobShared = newHopeBob.generateSharedSecret(newHopeAlice.publicKey, Encoding.MATRIX);
 
   console.log('Alice');
   console.log(aliceShared.toString());

@@ -4,6 +4,7 @@ import { Kyber as KyberConfig } from './config';
 import LatticeUtils from '../../utils/lattice-utils';
 import NumberUtils from '../../utils/number-utils';
 import KyberUtils from './Utils/kyber-utils';
+import ConversionUtils from '../../utils/conversion-utils';
 
 const numberUtils = new NumberUtils();
 const utils = new LatticeUtils();
@@ -210,13 +211,25 @@ function testKyber() {
   console.log('dc2 = ' + dc2);
   console.log('Output:');
 
+  const conversionUtils = new ConversionUtils();
+  let binArray = conversionUtils.text2Binary('I like apples in the summer time');
+  if (binArray.length < 256) {
+    while (binArray.length < 256) {
+      binArray = '0' + binArray
+    }
+  }
+  const plainTextArray = binArray.split('');
+  const plainText = plainTextArray.map(value => Number(value));
+  // console.log(binArray.length);
+  // console.log(binArray);
+
   // message
-  const plainText = new Array(n);
+  // const plainText = new Array(n);
   // message * 3841
   const plainText3841 = new Array(n);
 
   for (let i = 0; i < n; i++) {
-    plainText[i] = numberUtils.nextInt(2);
+    // plainText[i] = numberUtils.nextInt(2);
     plainText3841[i] = plainText[i] * 3841;
   }
 
@@ -228,6 +241,8 @@ function testKyber() {
 
   // const kyberBob = new Kyber();
   // kyberBob.generateKeyPair();
+
+  // Kyber Utils should be abstracted into the kyberAlice and kyberBob
 
   const cipherText = kyberUtils.encrypt(kyberAlice.publicKey, kyberAlice.sharedRandomness, nttM3841, q, n);
   const v00 = kyberUtils.decrypt(cipherText, kyberAlice.privateKey, q, n);
