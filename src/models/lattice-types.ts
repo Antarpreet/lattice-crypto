@@ -1,13 +1,22 @@
+import { KeyOptions } from "./Key";
 
-// export type LatticeTypes = 
-
-
-
+/**
+ * Types of lattice crypto algorithm actions
+ */
 export enum LatticeTypes {
     SHARED_SECRET = 'SHARED_SECRET',
     SIGN_AND_VERIFY = 'SIGN_AND_VERIFY',
     ENCRYPT_DECRYPT = 'ENCRYPT_DECRYPT'
 }
+
+/**
+ * Actions to perform
+ */
+export enum Action {
+    ENCRYPT = 'encrypt',
+    DECRYPT = 'decrypt',
+}
+  
 
 /**
  * Enum of all the algorithms currently supported
@@ -21,38 +30,41 @@ export enum Algorithm {
 }
 
 /**
- * 
+ * This contains the types of supported actions that each fo the libraries have.
  */
-export const AlgorithmSuppoprtedTypes: AlgorithmSupportedType[] = [
+export const AlgorithmSupportedTypes: AlgorithmSupportedType[] = [
     { algorithm: Algorithm.NEW_HOPE, latticeTypes: [LatticeTypes.SHARED_SECRET]
         // LatticeTypes.SIGN_AND_VERIFY (TODO)
     },
-    { algorithm: Algorithm.FRODO, latticeTypes: [LatticeTypes.SHARED_SECRET],
+    { algorithm: Algorithm.FRODO, latticeTypes: [LatticeTypes.SHARED_SECRET]
         // LatticeTypes.SIGN_AND_VERIFY (TODO)
     },
-    { algorithm: Algorithm.KYBER, latticeTypes: [LatticeTypes.ENCRYPT_DECRYPT
-    // LatticeTypes.SHARED_SECRET (TODO)
-    ]},
+    { algorithm: Algorithm.KYBER, latticeTypes: [LatticeTypes.ENCRYPT_DECRYPT]
+        // LatticeTypes.SHARED_SECRET (TODO)
+    },
     { algorithm: Algorithm.LIZARD, latticeTypes: [LatticeTypes.ENCRYPT_DECRYPT]
-    // LatticeTypes.SHARED_SECRET (TODO)
+        // LatticeTypes.SHARED_SECRET (TODO)
     },
     { algorithm: Algorithm.RING_LIZARD, latticeTypes: [LatticeTypes.ENCRYPT_DECRYPT]
-    // LatticeTypes.SHARED_SECRET (TODO)
+        // LatticeTypes.SHARED_SECRET (TODO)
     },
 ];
 
 /**
- * This contains the types of supported actions that each fo the libraries have.
+ * This represents the supported action of library structure
  */
 export interface AlgorithmSupportedType {
     algorithm: Algorithm,
     latticeTypes: LatticeTypes[]
 }
 
-
+/**
+ * Settings for the algorithm to use for cryptographic actions
+ */
 export interface AlgorithmSettings {
     algorithm: Algorithm,
-    algorithmVariant: AlgorithmVariants
+    algorithmVariant: AlgorithmVariants,
+    keyPairOptions: KeyOptions
 }
 
 
@@ -61,11 +73,17 @@ export interface AlgorithmSettings {
  */
 export type AlgorithmVariants = NewHopeVariant | KyberVariant | FrodoVariant | LizardVariant | RingLizardVariant;
 
+/**
+ * Supported types for New Hope algorithm
+ */
 export enum NewHopeVariant {
-    NEWHOPE_512 = 'NewHope-512-CCA', // TODO
-    NEWHOPE_1024 = 'NewHope-1024-CCA'
+    NEW_HOPE_512 = 'NewHope-512-CCA', // TODO
+    NEW_HOPE_1024 = 'NewHope-1024-CCA'
 }
 
+/**
+ * Supported types for Kyber algorithm
+ */
 export enum KyberVariant {
     KYBER_256 = 'Kyber256', 
     KYBER_512 = 'Kyber512', // TODO
@@ -76,7 +94,9 @@ export enum KyberVariant {
     KYBER_1024_90s = 'Kyber1024-90s' // TODO
 }
 
-// TODO : for all
+/**
+ * Supported types for Frodo algorithm
+ */
 export enum FrodoVariant {
     FRODO_752 = 'FrodoKEM-752', // this is a rLWE problem.
     FRODO_640_AES = 'FrodoKEM-640-AES', // TODO
@@ -87,12 +107,18 @@ export enum FrodoVariant {
     FRODO_1344_SHAKE = 'FrodoKEM-1344-SHAKE', // TODO
 }
 
+/**
+ * Supported types for Lizard algorithm
+ */
 export enum LizardVariant {
     LIZARD_544 = 'Lizard-544', // TODO
     LIZARD_608 = 'Lizard-608',
     LIZARD_736 = 'Lizard-736' // TODO
 }
 
+/**
+ * Supported types for Ring-Lizard algorithm
+ */
 export enum RingLizardVariant {
     RING_LIZARD_1024 = 'RingLizard-1024'
 }

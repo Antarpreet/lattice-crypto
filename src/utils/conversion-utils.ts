@@ -13,10 +13,10 @@ export default class ConversionUtils {
 
     /* tslint:disable:no-bitwise */
     /**
-     * This function takes a hexstring and creates a bytes array.
+     * This function takes a hexString and creates a bytes array.
      * @param hexString
      */
-    public toByteArray(hexString: string): any[] {
+    public toByteArray(hexString: string): number[] {
         const result = [];
         let hexStringInput = hexString;
         while (hexStringInput.length >= 2) {
@@ -26,13 +26,21 @@ export default class ConversionUtils {
         return result;
     }
 
-    public text2Binary(str: string) {
+    /**
+     * This function converts a string to binary string.
+     * @param str
+     */
+    public text2Binary(str: string): string {
         return str.split('').map((char) => {
             return ('000000000' + char.charCodeAt(0).toString(2)).substr(-8);
         }).join('');
     }
 
-    public binary2String(strArr: number[]) {
+    /**
+     * This function converts a binary array to string
+     * @param strArr
+     */
+    public binary2String(strArr: number[]): string {
         const stringMessage = strArr.join('');
         const firstIndex = 0;
         let message = '';

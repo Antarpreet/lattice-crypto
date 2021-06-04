@@ -1,5 +1,5 @@
 import random from './prng';
-import { Algorithm, Action } from '../models/LatticeCrypto';
+import { Algorithm, Action } from '../models/lattice-types';
 import NumberUtils from './number-utils';
 const numberUtils = new NumberUtils();
 

@@ -1,7 +1,7 @@
 import NumberUtils from '../../../utils/number-utils';
 import MatrixUtils from '../../../utils/matrix-utils';
 import BitUtils from '../../../utils/bit-utils';
-import { Algorithm } from '../../../models/LatticeCrypto';
+import { Algorithm } from '../../../models/lattice-types';
 import { Kyber as KyberConfig } from '../config';
 import LatticeUtils from '../../../utils/lattice-utils';
 

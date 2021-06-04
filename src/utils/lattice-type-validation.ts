@@ -1,22 +1,31 @@
-import { AlgorithmSettings, Algorithm, AlgorithmVariants, NewHopeVariant, KyberVariant, FrodoVariant, LizardVariant, RingLizardVariant } from "../models/lattice-types";
+import { AlgorithmSettings, Algorithm, AlgorithmVariants, NewHopeVariant, KyberVariant, FrodoVariant,
+    LizardVariant, RingLizardVariant } from "../models/lattice-types";
 
-
+/**
+ * This class validates the algorithm settings on initialization to only support supported settings for all algorithms
+ */
 export class LatticeTypeValidation {
-    public static validateLatticeSettings(algorithmSettings: AlgorithmSettings): boolean {
+    public static validateLatticeSettings(algorithmSettings: AlgorithmSettings): { valid: boolean, errorMessage?: string } {
+        const response = {
+            valid: false,
+            errorMessage: 'Unsupported variant provided for mentioned algorithm'
+        };
         switch(algorithmSettings.algorithm) {
             case Algorithm.NEW_HOPE:
-                return this.checkNewHope(algorithmSettings.algorithmVariant);
+                response.valid = this.checkNewHope(algorithmSettings.algorithmVariant);
             case Algorithm.KYBER:
-                return this.checkKyber(algorithmSettings.algorithmVariant);
+                response.valid = this.checkKyber(algorithmSettings.algorithmVariant);
             case Algorithm.FRODO:
-                return this.checkFrodo(algorithmSettings.algorithmVariant);
+                response.valid = this.checkFrodo(algorithmSettings.algorithmVariant);
             case Algorithm.LIZARD:
-                return this.checkLizard(algorithmSettings.algorithmVariant);
+                response.valid = this.checkLizard(algorithmSettings.algorithmVariant);
             case Algorithm.RING_LIZARD:
-                return this.checkRingLizard(algorithmSettings.algorithmVariant);
+                response.valid = this.checkRingLizard(algorithmSettings.algorithmVariant);
             default:
-                return false;
+                response.valid = false;
+                response.errorMessage = 'Unsupported algorithm provided';
         }
+        return response;
     }
 
     /**

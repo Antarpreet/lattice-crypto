@@ -1,4 +1,4 @@
-import { Algorithm, Action } from '../../../models/LatticeCrypto';
+import { Algorithm, Action } from '../../../models/lattice-types';
 import { Lizard as LizardConfig } from '../config';
 import MatrixUtils from '../../../utils/matrix-utils';
 

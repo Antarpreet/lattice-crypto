@@ -1,4 +1,4 @@
-import { Algorithm } from '../models/LatticeCrypto';
+import { Algorithm } from '../models/lattice-types';
 import MatrixUtils from './matrix-utils';
 const matrixUtils = new MatrixUtils();
 export default class LatticeUtils {

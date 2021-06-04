@@ -1,6 +1,6 @@
 // https://github.com/FuKyuToTo/lattice-based-cryptography
 import LatticeUtils from '../../utils/lattice-utils';
-import { Algorithm } from '../../models/LatticeCrypto';
+import { Algorithm } from '../../models/lattice-types';
 import { NewHope as NewHopeConfig } from './config';
 import NumberUtils from '../../utils/number-utils';
 import NewHopeUtils from './Utils/new-hope-utils';
@@ -67,7 +67,7 @@ export default class NewHope {
   }
   /**
    * This is a uniquely random sample from a ring. This should not be reused between sessions since reusing it
-   * with different vectors allows for this to be comprimised.
+   * with different vectors allows for this to be compromised.
    */
   generateSharedRandomness(): number[] {
     const arrA = new Array(n);
