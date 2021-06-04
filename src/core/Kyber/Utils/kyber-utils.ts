@@ -158,6 +158,7 @@ export default class KyberUtils {
         );
       }
     }
+    console.log(Buffer.from(tempC.toString()).toString('utf8').length);
 
     const cipherText: number[][][] = [new Array(3), new Array(1)];
 

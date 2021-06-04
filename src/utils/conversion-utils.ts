@@ -27,8 +27,18 @@ export default class ConversionUtils {
     }
 
     public text2Binary(str: string) {
-        return str.split('').map(function (char) {
-            return Number(char.charCodeAt(0).toString(2));
+        return str.split('').map((char) => {
+            return ('000000000' + char.charCodeAt(0).toString(2)).substr(-8);
         }).join('');
+    }
+
+    public binary2String(strArr: number[]) {
+        const stringMessage = strArr.join('');
+        const firstIndex = 0;
+        let message = '';
+        for (let index = firstIndex; index < stringMessage.length; index += 8) {
+            message += String.fromCharCode(parseInt(stringMessage.substring(index, index + 8), 2));
+        }
+        return message;
     }
 }

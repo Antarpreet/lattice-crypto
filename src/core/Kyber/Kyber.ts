@@ -213,6 +213,7 @@ function testKyber() {
 
   const conversionUtils = new ConversionUtils();
   let binArray = conversionUtils.text2Binary('I like apples in the summer time');
+  console.log(binArray.length);
   if (binArray.length < 256) {
     while (binArray.length < 256) {
       binArray = '0' + binArray
@@ -250,8 +251,11 @@ function testKyber() {
   const km = plainText.toString();
   const kv = v00.toString();
 
-  console.log('plaintext: ' + km);
-  console.log('result: ' + kv);
+  console.log('plaintext binary: ' + km);
+  console.log('result binary: ' + kv);
+  console.log('plaintext: ' + conversionUtils.binary2String(plainText));
+  console.log('result: ' + conversionUtils.binary2String(v00));
+
 
   if (km === kv) {
     console.log('Success!');
