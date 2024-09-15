@@ -7,7 +7,7 @@ const ucharPtr = refType(types.uchar);
 const intPtr = refType(types.int);
 
 // Load the liboqs library from the local path
-const liboqs = new Library('liboqs.so', {
+const liboqs = new Library('./liboqs.dylib', {
     'OQS_SIG_CRYSTALS_DILITHIUM_keypair': ['int', [voidPtr, voidPtr]],
     'OQS_SIG_CRYSTALS_DILITHIUM_sign': ['int', [ucharPtr, intPtr, voidPtr, intPtr]],
     'OQS_SIG_CRYSTALS_DILITHIUM_verify': ['int', [voidPtr, ucharPtr, intPtr, voidPtr]],
