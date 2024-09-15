@@ -1,10 +1,10 @@
 // https://github.com/FuKyuToTo/lattice-based-cryptography
-import { Algorithm } from '../../models/LatticeCrypto';
 import { Kyber as KyberConfig } from './config';
 import LatticeUtils from '../../utils/lattice-utils';
 import NumberUtils from '../../utils/number-utils';
 import KyberUtils from './Utils/kyber-utils';
 import ConversionUtils from '../../utils/conversion-utils';
+import { Algorithm } from '../../models/lattice-types';
 
 const numberUtils = new NumberUtils();
 const utils = new LatticeUtils();

@@ -1,7 +1,7 @@
-import { Algorithm } from '../../models/LatticeCrypto';
 import { Frodo as FrodoConfig } from './config';
 import MatrixUtils from '../../utils/matrix-utils';
 import FrodoUtils from './Utils/frodo-utils';
+import { Algorithm } from '../../models/lattice-types';
 
 const matrixUtils = new MatrixUtils();
 const frodoUtils = new FrodoUtils();

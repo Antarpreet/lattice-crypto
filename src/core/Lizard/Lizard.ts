@@ -1,8 +1,8 @@
-import { Algorithm, Action } from '../../models/LatticeCrypto';
 import { Lizard as LizardConfig } from './config';
 import NumberUtils from '../../utils/number-utils';
 import MatrixUtils from '../../utils/matrix-utils';
 import LizardUtils from './Utils/lizard-utils';
+import { Algorithm } from '../../models/lattice-types';
 
 const matrixUtils = new MatrixUtils();
 const numberUtils = new NumberUtils();

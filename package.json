@@ -1,5 +1,5 @@
 {
-  "name": "@atb/lattice-crypto",
+  "name": "lattice-crypto",
   "version": "0.0.4",
   "description": "A Lattice based cryptography library for JS - Under Development",
   "main": "lib/index.js",
@@ -24,7 +24,10 @@
   "author": "Antarpreet Singh",
   "license": "ISC",
   "devDependencies": {
+    "@types/ffi-napi": "^4.0.10",
     "@types/node": "^14.6.0",
+    "@types/ref-napi": "^3.0.12",
+    "node-gyp": "^9.4.0",
     "prettier": "^2.0.5",
     "tslint": "^6.1.3",
     "tslint-config-prettier": "^1.18.0",
@@ -33,7 +36,10 @@
   "directories": {
     "lib": "lib"
   },
-  "dependencies": {},
+  "dependencies": {
+    "ffi-napi": "^4.0.3",
+    "ref-napi": "^3.0.3"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Antarpreet/lattice-crypto.git"
