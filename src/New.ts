@@ -197,7 +197,7 @@ export class Kyber {
         this.secretKey = Buffer.alloc(Kyber.SECRET_KEY_SIZE);
     }
 
-    public generateKeyPair(): void {
+    public generateKeyPair(): number {
         const result = liboqs.OQS_KEM_kyber_512_keypair(
             this.publicKey as Pointer<void>,
             this.secretKey as Pointer<void>
@@ -205,6 +205,7 @@ export class Kyber {
         if (result !== 0) {
             throw new Error('Failed to generate key pair');
         }
+        return result;
     }
 
     public encrypt(message: Buffer): Buffer {
@@ -236,9 +237,11 @@ export class Kyber {
 
 async function main() {
     const kyber = new Kyber();
-    kyber.generateKeyPair();
+    const keys = kyber.generateKeyPair() as any;
+    console.log('Keys:', keys);
 
     const message = Buffer.from('Hello, World!');
+    console.log('Original message:', message.toString());
 
     // CRYSTALS-Kyber
     const ciphertext = kyber.encrypt(message);
