@@ -1,37 +1,60 @@
 import { Library } from "ffi-napi";
 import { alloc, Pointer, refType, types } from "ref-napi";
+import * as os from 'os';
 
 // Define the types for FFI
 const voidPtr = refType(types.void);
 const ucharPtr = refType(types.uchar);
 const intPtr = refType(types.int);
 
-// Load the liboqs library from the local path
-const liboqs = new Library('./liboqs.dylib', {
-  'OQS_SIG_dilithium_2_keypair': ['int', [voidPtr, voidPtr]],
-  'OQS_SIG_dilithium_2_sign': ['int', [ucharPtr, intPtr, voidPtr, intPtr]],
-  'OQS_SIG_dilithium_2_verify': ['int', [voidPtr, ucharPtr, intPtr, voidPtr]],
+// Function to dynamically load the appropriate liboqs library based on the platform
+function loadLiboqsLibrary() {
+  const platform = os.platform();
+  let liboqsPath;
 
-  'OQS_SIG_falcon_512_keypair': ['int', [voidPtr, voidPtr]],
-  'OQS_SIG_falcon_512_sign': ['int', [ucharPtr, intPtr, voidPtr, intPtr]],
-  'OQS_SIG_falcon_512_verify': ['int', [voidPtr, ucharPtr, intPtr, voidPtr]],
+  switch (platform) {
+    case 'win32':
+      liboqsPath = './liboqs.dll';
+      break;
+    case 'darwin':
+      liboqsPath = './liboqs.dylib';
+      break;
+    case 'linux':
+      liboqsPath = './liboqs.so';
+      break;
+    default:
+      throw new Error(`Unsupported platform: ${platform}`);
+  }
 
-  'OQS_SIG_sphincs_sha2_128f_simple_keypair': ['int', [voidPtr, voidPtr]],
-  'OQS_SIG_sphincs_sha2_128f_simple_sign': ['int', [ucharPtr, intPtr, voidPtr, intPtr]],
-  'OQS_SIG_sphincs_sha2_128f_simple_verify': ['int', [voidPtr, ucharPtr, intPtr, voidPtr]],
+  return new Library(liboqsPath, {
+    'OQS_SIG_dilithium_2_keypair': ['int', [voidPtr, voidPtr]],
+    'OQS_SIG_dilithium_2_sign': ['int', [ucharPtr, intPtr, voidPtr, intPtr]],
+    'OQS_SIG_dilithium_2_verify': ['int', [voidPtr, ucharPtr, intPtr, voidPtr]],
 
-  'OQS_KEM_kyber_512_keypair': ['int', [voidPtr, voidPtr]],
-  'OQS_KEM_kyber_512_encaps': ['int', [ucharPtr, voidPtr, voidPtr]],
-  'OQS_KEM_kyber_512_decaps': ['int', [voidPtr, ucharPtr, voidPtr]],
+    'OQS_SIG_falcon_512_keypair': ['int', [voidPtr, voidPtr]],
+    'OQS_SIG_falcon_512_sign': ['int', [ucharPtr, intPtr, voidPtr, intPtr]],
+    'OQS_SIG_falcon_512_verify': ['int', [voidPtr, ucharPtr, intPtr, voidPtr]],
 
-  'OQS_KEM_kyber_768_keypair': ['int', [voidPtr, voidPtr]],
-  'OQS_KEM_kyber_768_encaps': ['int', [ucharPtr, voidPtr, voidPtr]],
-  'OQS_KEM_kyber_768_decaps': ['int', [voidPtr, ucharPtr, voidPtr]],
+    'OQS_SIG_sphincs_sha2_128f_simple_keypair': ['int', [voidPtr, voidPtr]],
+    'OQS_SIG_sphincs_sha2_128f_simple_sign': ['int', [ucharPtr, intPtr, voidPtr, intPtr]],
+    'OQS_SIG_sphincs_sha2_128f_simple_verify': ['int', [voidPtr, ucharPtr, intPtr, voidPtr]],
 
-  'OQS_KEM_kyber_1024_keypair': ['int', [voidPtr, voidPtr]],
-  'OQS_KEM_kyber_1024_encaps': ['int', [ucharPtr, voidPtr, voidPtr]],
-  'OQS_KEM_kyber_1024_decaps': ['int', [voidPtr, ucharPtr, voidPtr]],
-});
+    'OQS_KEM_kyber_512_keypair': ['int', [voidPtr, voidPtr]],
+    'OQS_KEM_kyber_512_encaps': ['int', [ucharPtr, voidPtr, voidPtr]],
+    'OQS_KEM_kyber_512_decaps': ['int', [voidPtr, ucharPtr, voidPtr]],
+
+    'OQS_KEM_kyber_768_keypair': ['int', [voidPtr, voidPtr]],
+    'OQS_KEM_kyber_768_encaps': ['int', [ucharPtr, voidPtr, voidPtr]],
+    'OQS_KEM_kyber_768_decaps': ['int', [voidPtr, ucharPtr, voidPtr]],
+
+    'OQS_KEM_kyber_1024_keypair': ['int', [voidPtr, voidPtr]],
+    'OQS_KEM_kyber_1024_encaps': ['int', [ucharPtr, voidPtr, voidPtr]],
+    'OQS_KEM_kyber_1024_decaps': ['int', [voidPtr, ucharPtr, voidPtr]],
+  });
+}
+
+// Load the liboqs library dynamically
+const liboqs = loadLiboqsLibrary();
 
 // CRYSTALS-Dilithium
 export class Dilithium {
